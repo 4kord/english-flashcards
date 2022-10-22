@@ -1,0 +1,32 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/maindb/Dockerfile
+    environment:
+      - POSTGRES_DB=english
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    expose:
+      - "80"
+    depends_on:
+      - db
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+volumes:
+ data:
