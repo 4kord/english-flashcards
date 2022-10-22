@@ -18,8 +18,8 @@ import (
 )
 
 type cardsController struct {
-	cardsService cards.Service
-	log          *zap.Logger
+	cardService cards.Service
+	log         *zap.Logger
 }
 
 type getCardsRequest struct {
@@ -56,7 +56,7 @@ func (c *cardsController) GetCards(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cards, err := c.cardsService.GetCards(r.Context(), request.DeckID)
+	cards, err := c.cardService.GetCards(r.Context(), request.DeckID)
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.log, err)
 		return
@@ -146,7 +146,7 @@ func (c *cardsController) CreateCard(w http.ResponseWriter, r *http.Request) {
 		image = request.Audio[0]
 	}
 
-	card, err := c.cardsService.CreateCard(r.Context(), maindb.Card{
+	card, err := c.cardService.CreateCard(r.Context(), maindb.Card{
 		DeckID:        int32(deckIDInt),
 		English:       request.English,
 		Russian:       request.Russian,

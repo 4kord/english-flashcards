@@ -13,8 +13,8 @@ func Router(r chi.Router, services *services.Services, logger *zap.Logger) chi.R
 	}
 
 	cardscontroller := &cardsController{
-		cardsService: services.Cards,
-		log:          logger,
+		cardService: services.Cards,
+		log:         logger,
 	}
 
 	r.Route("/auth", func(r chi.Router) {
