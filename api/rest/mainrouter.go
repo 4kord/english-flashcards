@@ -9,8 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func MainRouter(services *services.Services, logger *zap.Logger) chi.Router {
-
+func MainRouter(s *services.Services, log *zap.Logger) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -18,7 +17,7 @@ func MainRouter(services *services.Services, logger *zap.Logger) chi.Router {
 	r.Use(cors.AllowAll().Handler)
 
 	r.Route("/v1", func(r chi.Router) {
-		v1.Router(r, services, logger)
+		v1.Router(r, s, log)
 	})
 
 	return r

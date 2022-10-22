@@ -9,7 +9,7 @@ import (
 	"github.com/4kord/english-flashcards/pkg/maindb"
 )
 
-func (s *service) EditDeck(ctx context.Context, deck maindb.Deck) (*maindb.Deck, error) {
+func (s *service) EditDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
 	d, err := s.store.EditDeck(ctx, maindb.EditDeckParams{
 		ID:   deck.ID,
 		Name: deck.Name,

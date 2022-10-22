@@ -7,11 +7,11 @@ import (
 )
 
 type Service interface {
-	GetDecks(ctx context.Context, userId int32) ([]*maindb.Deck, error)
+	GetDecks(ctx context.Context, userID int32) ([]*maindb.Deck, error)
 	GetPremadeDecks(ctx context.Context) ([]*maindb.Deck, error)
-	CreateDeck(ctx context.Context, deck maindb.Deck) (*maindb.Deck, error)
-	EditDeck(ctx context.Context, deck maindb.Deck) (*maindb.Deck, error)
-	DeleteDeck(ctx context.Context, deckId int32) error
+	CreateDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error)
+	EditDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error)
+	DeleteDeck(ctx context.Context, deckID int32) error
 }
 
 type service struct {

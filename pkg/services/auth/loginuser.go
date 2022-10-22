@@ -2,9 +2,10 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"errors"
-	"math/rand"
+	"math/big"
 	"time"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
@@ -42,18 +43,23 @@ func (s *service) LoginUser(ctx context.Context, email, password string) (*maind
 		}
 
 		if amount >= 5 {
-			err := s.store.DeleteOldestSession(ctx)
+			err = s.store.DeleteOldestSession(ctx)
 			if err != nil {
 				return errs.E(err, errs.Database, errs.Code("delete_oldest_session_failed"))
 			}
 		}
 
-		rand.Seed(time.Now().UnixNano())
-
 		var symbols = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 		b := make([]byte, 20)
 		for i := range b {
-			b[i] = symbols[rand.Intn(len(symbols))]
+			var n *big.Int
+
+			n, err = rand.Int(rand.Reader, big.NewInt(int64(len(symbols))))
+			if err != nil {
+				return err
+			}
+
+			b[i] = symbols[n.Int64()]
 		}
 
 		generatedSession := string(b)
@@ -68,7 +74,7 @@ func (s *service) LoginUser(ctx context.Context, email, password string) (*maind
 		})
 
 		if err != nil {
-			errs.E(err, errs.Database, "create_session_failed")
+			return errs.E(err, errs.Database, errs.Code("create_session_failed"))
 		}
 
 		User = user

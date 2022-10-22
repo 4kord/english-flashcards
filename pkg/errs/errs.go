@@ -99,6 +99,7 @@ func (k Kind) String() string {
 	case Unauthorized:
 		return "unauthorized_request"
 	}
+
 	return "unknown_error_kind"
 }
 
@@ -129,6 +130,7 @@ func E(args ...interface{}) error {
 	if len(args) == 0 {
 		panic("call to errs.E with no arguments")
 	}
+
 	e := &Error{}
 
 	for _, arg := range args {
@@ -164,24 +166,30 @@ func Match(err1, err2 error) bool {
 	if !ok {
 		return false
 	}
+
 	e2, ok := err2.(*Error)
 	if !ok {
 		return false
 	}
+
 	if e1.Kind != Other && e2.Kind != e1.Kind {
 		return false
 	}
+
 	if e1.Code != "" && e2.Code != e1.Code {
 		return false
 	}
+
 	if e1.Err != nil {
 		if _, ok := e1.Err.(*Error); ok {
 			return Match(e1.Err, e2.Err)
 		}
+
 		if e2.Err == nil || e2.Err.Error() != e1.Err.Error() {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -192,12 +200,15 @@ func KindIs(kind Kind, err error) bool {
 	if !ok {
 		return false
 	}
+
 	if e.Kind != Other {
 		return e.Kind == kind
 	}
+
 	if e.Err != nil {
 		return KindIs(kind, e.Err)
 	}
+
 	return false
 }
 

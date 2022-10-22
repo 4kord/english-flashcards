@@ -8,8 +8,8 @@ import (
 	"github.com/4kord/english-flashcards/pkg/errs"
 )
 
-func (s *service) DeleteDeck(ctx context.Context, deckId int32) error {
-	err := s.DeleteDeck(ctx, deckId)
+func (s *service) DeleteDeck(ctx context.Context, deckID int32) error {
+	err := s.store.DeleteDeck(ctx, deckID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return errs.E(err, errs.NotExist, errs.Code("deck_not_found"))

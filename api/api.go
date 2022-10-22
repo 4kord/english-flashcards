@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/4kord/english-flashcards/pkg/cld"
 	"github.com/4kord/english-flashcards/pkg/maindb"
@@ -11,11 +12,10 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
-type envoirnment struct {
+type Envoirnment struct {
 	APIHost      string `env:"API_HOST"`
 	APIPort      string `env:"API_PORT"`
 	MainDBDriver string `env:"MAINDB_DRIVER"`
@@ -25,8 +25,8 @@ type envoirnment struct {
 	CldSecret    string `env:"CLD_SECRET"`
 }
 
-func NewEnv() (*envoirnment, error) {
-	var envVars envoirnment
+func NewEnv() (*Envoirnment, error) {
+	var envVars Envoirnment
 
 	err := godotenv.Load()
 	if err != nil {
@@ -51,22 +51,23 @@ type Config struct {
 	Logger     *zap.Logger
 }
 
-type MainRouter func(services *services.Services, logger *zap.Logger) chi.Router
+type MainRouter func(s *services.Services, logger *zap.Logger) chi.Router
 
 type Server struct {
 	*http.Server
 }
 
 func NewServer(cfg Config) *Server {
-	services := services.New(services.Config{
+	s := services.New(&services.Config{
 		Store: maindb.NewStore(cfg.DB),
 		Cld:   cld.New(cfg.Cld),
 	})
 
 	return &Server{
 		Server: &http.Server{
-			Addr:    cfg.Host + ":" + cfg.Port,
-			Handler: cfg.MainRouter(services, cfg.Logger),
+			Addr:              cfg.Host + ":" + cfg.Port,
+			Handler:           cfg.MainRouter(s, cfg.Logger),
+			ReadHeaderTimeout: 2 * time.Second,
 		},
 	}
 }
