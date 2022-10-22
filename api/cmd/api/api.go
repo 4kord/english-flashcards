@@ -32,7 +32,7 @@ func main() {
 	defer db.Close()
 
 	// ping db
-	if err := db.Ping(); err != nil {
+	if err = db.Ping(); err != nil {
 		logger.Panic("Error pinging db", zap.Error(err))
 	}
 

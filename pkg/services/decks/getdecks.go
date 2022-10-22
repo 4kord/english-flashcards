@@ -7,8 +7,8 @@ import (
 	"github.com/4kord/english-flashcards/pkg/maindb"
 )
 
-func (s *service) GetDecks(ctx context.Context, userId int32) ([]*maindb.Deck, error) {
-	d, err := s.store.GetDecks(ctx, userId)
+func (s *service) GetDecks(ctx context.Context, userID int32) ([]*maindb.Deck, error) {
+	d, err := s.store.GetDecks(ctx, userID)
 	if err != nil {
 		return nil, errs.E(err, errs.Database, "get_decks_failed")
 	}

@@ -1,6 +1,7 @@
 package formdata
 
 import (
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -9,7 +10,9 @@ import (
 )
 
 func Decode(r *http.Request, v any) error {
-	err := r.ParseMultipartForm(10 << 32)
+	var maxMemory int64 = 32 * 1024 * 1024
+
+	err := r.ParseMultipartForm(maxMemory)
 	if err != nil {
 		return err
 	}
@@ -18,24 +21,28 @@ func Decode(r *http.Request, v any) error {
 	reflectionValuePtr := reflect.ValueOf(v)
 
 	if reflectionTypePtr.Kind() != reflect.Pointer {
-		return fmt.Errorf("Expected kind 'pointer', got kind %s", reflectionTypePtr.Kind().String())
+		return fmt.Errorf("expected kind 'pointer', got kind %s", reflectionTypePtr.Kind().String())
 	}
 
 	reflectionType := reflectionTypePtr.Elem()
 	reflectionValue := reflectionValuePtr.Elem()
 
 	if reflectionType.Kind() != reflect.Struct {
-		return fmt.Errorf("Expected kind 'struct', got kind %s", reflectionType.Kind().String())
+		return fmt.Errorf("expected kind 'struct', got kind %s", reflectionType.Kind().String())
 	}
 
 	for i := 0; i < reflectionType.NumField(); i++ {
 		field := reflectionType.Field(i)
 		fieldValue := reflectionValue.Field(i)
+
 		var formValue string
+
 		var formFile []*multipart.FileHeader
+
 		if len(r.MultipartForm.Value[field.Tag.Get("form")]) != 0 {
 			formValue = r.MultipartForm.Value[field.Tag.Get("form")][0]
 		}
+
 		formFile = r.MultipartForm.File[field.Tag.Get("form")]
 
 		switch field.Type.Kind() {
@@ -51,6 +58,8 @@ func Decode(r *http.Request, v any) error {
 			if reflect.TypeOf([]*multipart.FileHeader{}) == field.Type {
 				fieldValue.Set(reflect.ValueOf(formFile))
 			}
+		default:
+			return errors.New("unsupported struct field type")
 		}
 	}
 

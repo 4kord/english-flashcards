@@ -19,7 +19,7 @@ type Services struct {
 	Cards cards.Service
 }
 
-func New(cfg Config) *Services {
+func New(cfg *Config) *Services {
 	return &Services{
 		Auth:  auth.New(cfg.Store),
 		Decks: decks.New(cfg.Store),

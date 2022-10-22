@@ -32,6 +32,7 @@ func HTTPErrorResponse(w http.ResponseWriter, log *zap.Logger, err error) {
 				zap.Int("http_statuscode", httpStatusCode),
 			)
 			w.WriteHeader(http.StatusInternalServerError)
+
 			return
 		}
 
@@ -65,7 +66,7 @@ func HTTPErrorResponse(w http.ResponseWriter, log *zap.Logger, err error) {
 		w.WriteHeader(httpStatusCode)
 
 		// Write response body (json)
-		_, err := w.Write([]byte(ej))
+		_, err = w.Write([]byte(ej))
 		if err != nil {
 			log.Error("Unable to send response error",
 				zap.Int("http_statuscode", httpStatusCode),
@@ -99,5 +100,12 @@ func HTTPErrorResponse(w http.ResponseWriter, log *zap.Logger, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 
 	// Write response body (json)
-	w.Write([]byte(ej))
+	_, err = w.Write([]byte(ej))
+	if err != nil {
+		log.Error("Unable to send response error",
+			zap.Int("http_statuscode", http.StatusInternalServerError),
+			zap.String("Kind", e.Kind.String()),
+			zap.String("Code", string(e.Code)),
+		)
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
+	"github.com/4kord/english-flashcards/pkg/httputils"
 	"github.com/4kord/english-flashcards/pkg/services/auth"
 	"go.uber.org/zap"
 )
@@ -21,21 +22,22 @@ type registerRequest struct {
 }
 
 type registerResponse struct {
-	CreatedAt time.Time `json:"created_at"`
+	ID        int32     `json:"id"`
 	Email     string    `json:"email"`
 	Role      string    `json:"role"`
-	ID        int32     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (c *authController) Register(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		errs.HTTPErrorResponse(w, c.log, errs.E("Unsupported request type", errs.InvalidRequest, errs.Code("unsupported_request_type")))
+	err := httputils.RequireContentType(r, "application/json")
+	if err != nil {
+		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
 		return
 	}
 
 	var request registerRequest
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.InvalidRequest, "decode_body_failed"))
 		return
@@ -63,6 +65,7 @@ func (c *authController) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(b)
+
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.Internal, errs.Code("sending_request_failed")))
 		return
@@ -75,7 +78,7 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	UserId    int32     `json:"userId"`
+	UserID    int32     `json:"userID"`
 	Email     string    `json:"email"`
 	Role      string    `json:"role"`
 	Session   string    `json:"session"`
@@ -83,14 +86,15 @@ type loginResponse struct {
 }
 
 func (c *authController) Login(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		errs.HTTPErrorResponse(w, c.log, errs.E("Unsupported request type", errs.InvalidRequest, errs.Code("unsupported_request_type")))
+	err := httputils.RequireContentType(r, "application/json")
+	if err != nil {
+		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
 		return
 	}
 
 	var request loginRequest
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.InvalidRequest, "decode_body_failed"))
 		return
@@ -103,7 +107,7 @@ func (c *authController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := loginResponse{
-		UserId:    user.ID,
+		UserID:    user.ID,
 		Email:     user.Email,
 		Role:      user.Role,
 		Session:   session.Session,
@@ -118,6 +122,7 @@ func (c *authController) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(b)
+
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.log, errs.E(err, errs.Internal, errs.Code("sending_request_failed")))
 		return

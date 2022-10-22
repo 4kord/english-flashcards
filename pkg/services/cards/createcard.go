@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (s *service) CreateCard(ctx context.Context, card maindb.Card, image *multipart.FileHeader, audio *multipart.FileHeader) (*maindb.Card, error) {
+func (s *service) CreateCard(ctx context.Context, card *maindb.Card, image, audio *multipart.FileHeader) (*maindb.Card, error) {
 	var imagePublicID, imageURL sql.NullString
 
 	if image != nil {
@@ -24,6 +24,7 @@ func (s *service) CreateCard(ctx context.Context, card maindb.Card, image *multi
 	}
 
 	var audioPublicID, audioURL sql.NullString
+
 	if audio != nil {
 		audioRes, err := s.cld.UploadFile(ctx, audio)
 		if err != nil {
@@ -55,7 +56,7 @@ func (s *service) CreateCard(ctx context.Context, card maindb.Card, image *multi
 		}
 
 		if imagePublicID.Valid {
-			err := s.cld.DeleteFile(ctx, imagePublicID.String, "image")
+			err = s.cld.DeleteFile(ctx, imagePublicID.String, "image")
 			if err != nil {
 				return nil, errs.E(err, errs.IO, errs.Code("delete_image_failed"))
 			}

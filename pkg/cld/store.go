@@ -34,8 +34,8 @@ func (cld *Cld) UploadFile(ctx context.Context, fileHeader *multipart.FileHeader
 	return res, nil
 }
 
-func (cld *Cld) UploadFileUrl(ctx context.Context, url string) (*uploader.UploadResult, error) {
-	resp, err := http.Get(url)
+func (cld *Cld) UploadFileURL(ctx context.Context, url string) (*uploader.UploadResult, error) {
+	resp, err := http.Get(url) //nolint:gosec // url is required to be a function parameter
 	if err != nil {
 		return nil, err
 	}
@@ -45,11 +45,12 @@ func (cld *Cld) UploadFileUrl(ctx context.Context, url string) (*uploader.Upload
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
-func (cld *Cld) DeleteFile(ctx context.Context, publicId, resourceType string) error {
-	_, err := cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: publicId, ResourceType: resourceType})
+func (cld *Cld) DeleteFile(ctx context.Context, publicID, resourceType string) error {
+	_, err := cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: publicID, ResourceType: resourceType})
 
 	return err
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/4kord/english-flashcards/pkg/maindb"
 )
 
-func (s *service) CreateDeck(ctx context.Context, deck maindb.Deck) (*maindb.Deck, error) {
+func (s *service) CreateDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
 	d, err := s.store.CreateDeck(ctx, maindb.CreateDeckParams{
 		UserID:    deck.UserID,
 		Name:      deck.Name,

@@ -6,15 +6,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func Router(r chi.Router, services *services.Services, logger *zap.Logger) chi.Router {
+func Router(r chi.Router, s *services.Services, log *zap.Logger) chi.Router {
 	authcontroller := &authController{
-		authService: services.Auth,
-		log:         logger,
+		authService: s.Auth,
+		log:         log,
 	}
 
 	cardscontroller := &cardsController{
-		cardService: services.Cards,
-		log:         logger,
+		cardService: s.Cards,
+		log:         log,
 	}
 
 	r.Route("/auth", func(r chi.Router) {
