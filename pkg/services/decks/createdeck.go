@@ -5,13 +5,14 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
+	"github.com/4kord/english-flashcards/pkg/services/decks/dto"
 )
 
-func (s *service) CreateDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
+func (s *service) CreateDeck(ctx context.Context, arg *dto.CreateDeckParams) (*maindb.Deck, error) {
 	d, err := s.store.CreateDeck(ctx, maindb.CreateDeckParams{
-		UserID:    deck.UserID,
-		Name:      deck.Name,
-		IsPremade: deck.IsPremade,
+		UserID:    arg.UserID,
+		Name:      arg.Name,
+		IsPremade: arg.IsPremade,
 	})
 	if err != nil {
 		return nil, errs.E(err, errs.Database, errs.Code("create_deck_failed"))

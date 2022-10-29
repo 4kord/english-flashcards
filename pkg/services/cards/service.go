@@ -2,18 +2,18 @@ package cards
 
 import (
 	"context"
-	"mime/multipart"
 
 	"github.com/4kord/english-flashcards/pkg/cld"
 	"github.com/4kord/english-flashcards/pkg/maindb"
+	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
 )
 
 type Service interface {
 	GetCards(ctx context.Context, deckID int32) ([]*maindb.Card, error)
-	CreateCard(ctx context.Context, card *maindb.Card, image *multipart.FileHeader, audio *multipart.FileHeader) (*maindb.Card, error)
-	// EditCard(ctx context.Context, card maindb.Card) (*maindb.Card, error)
-	// DeleteCard(ctx context.Context, cardId int32) error
-	// CopyCards(ctx context.Context, cardIds []int32) error
+	CreateCard(ctx context.Context, arg *dto.CreateCardParams) (*maindb.Card, error)
+	EditCard(ctx context.Context, arg *dto.EditCardParams) (*maindb.Card, error)
+	DeleteCard(ctx context.Context, cardID int32) error
+	InsertCards(ctx context.Context, arg *dto.InsertCardsParams) error
 }
 
 type service struct {

@@ -4,7 +4,7 @@ WHERE user_id = $1;
 
 -- name: GetPremadeDecks :many
 SELECT * FROM decks
-WHERE premade = true;
+WHERE is_premade = true;
 
 -- name: CreateDeck :one
 INSERT INTO decks (user_id, name, is_premade)

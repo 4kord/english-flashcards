@@ -1,14 +1,14 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
 	email VARCHAR(255) NOT NULL,
 	password VARCHAR(255) NOT NULL,
-	role VARCHAR(255) DEFAULT("user") NOT NULL,
+	role VARCHAR(255) DEFAULT('user') NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('utc', now())
 );
-ALTER TABLE users
-ADD CONSTRAINT uc_users_email UNIQUE(email);
 
-CREATE TABLE sessions (
+CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users (email);
+
+CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
     session VARCHAR(255) NOT NULL,
     user_id INTEGER NOT NULL REFERENCES users(id),
@@ -16,10 +16,10 @@ CREATE TABLE sessions (
     expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('utc', now())
 );
-ALTER TABLE sessions
-ADD CONSTRAINT uc_sessions_sesssion UNIQUE(session);
 
-CREATE TABLE decks (
+CREATE UNIQUE INDEX IF NOT EXISTS sessions_session ON sessions (session);
+
+CREATE TABLE IF NOT EXISTS decks (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
     name VARCHAR(255) NOT NULL,
@@ -27,10 +27,8 @@ CREATE TABLE decks (
     is_premade BOOLEAN NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('utc', now())
 );
-ALTER TABLE decks
-ADD CONSTRAINT uc_decks_name UNIQUE(name);
 
-CREATE TABLE cards (
+CREATE TABLE IF NOT EXISTS cards (
     id SERIAL PRIMARY KEY,
     deck_id INTEGER NOT NULL REFERENCES decks(id),
     english VARCHAR(255) NOT NULL,
@@ -45,7 +43,7 @@ CREATE TABLE cards (
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('utc', now())
 );
 
-CREATE TABLE progresses (
+CREATE TABLE IF NOT EXISTS progresses (
     id SERIAL PRIMARY KEY,
     card_id INTEGER NOT NULL REFERENCES cards(id),
     user_id INTEGER NOT NULL REFERENCES users(id),
@@ -54,4 +52,6 @@ CREATE TABLE progresses (
     correct INTEGER NOT NULL DEFAULT(0),
     incorrect INTEGER NOT NULL DEFAULT(0),
     last_viewed_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT timezone('utc', now())
-)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS progresses_card_id_user_id ON progresses (card_id, user_id);

@@ -7,8 +7,10 @@ import (
 )
 
 type Service interface {
-	RegisterUser(ctx context.Context, email, password string) (*maindb.User, error)
+	RegisterUser(ctx context.Context, email, password string) error
 	LoginUser(ctx context.Context, email, password string) (*maindb.User, *maindb.Session, error)
+	LogoutUser(ctx context.Context, session string) error
+	User(ctx context.Context, session string) (*maindb.User, *maindb.Session, error)
 }
 
 type service struct {

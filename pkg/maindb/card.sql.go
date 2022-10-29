@@ -10,6 +10,23 @@ import (
 	"database/sql"
 )
 
+const copyCard = `-- name: CopyCard :exec
+INSERT INTO cards (deck_id, english, russian, association, example, transcription, image, image_url, audio, audio_url, created_at)
+SELECT $2, english, russian, association, example, transcription, image, image_url, audio, audio_url, created_at
+FROM cards
+WHERE cards.id = $1
+`
+
+type CopyCardParams struct {
+	ID     int32
+	DeckID int32
+}
+
+func (q *Queries) CopyCard(ctx context.Context, arg CopyCardParams) error {
+	_, err := q.db.ExecContext(ctx, copyCard, arg.ID, arg.DeckID)
+	return err
+}
+
 const createCard = `-- name: CreateCard :one
 INSERT INTO cards (deck_id, english, russian, association, example, transcription, image, image_url, audio, audio_url)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -42,6 +59,92 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (*Card, 
 		arg.Audio,
 		arg.AudioUrl,
 	)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.DeckID,
+		&i.English,
+		&i.Russian,
+		&i.Association,
+		&i.Example,
+		&i.Transcription,
+		&i.Image,
+		&i.ImageUrl,
+		&i.Audio,
+		&i.AudioUrl,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
+
+const deleteCard = `-- name: DeleteCard :exec
+DELETE FROM cards
+WHERE id = $1
+`
+
+func (q *Queries) DeleteCard(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteCard, id)
+	return err
+}
+
+const editCard = `-- name: EditCard :one
+UPDATE cards
+SET english = $2, russian = $3, association = $4, example = $5, transcription = $6, image = $7, image_url = $8, audio = $9, audio_url = $10
+WHERE id = $1
+RETURNING id, deck_id, english, russian, association, example, transcription, image, image_url, audio, audio_url, created_at
+`
+
+type EditCardParams struct {
+	ID            int32
+	English       string
+	Russian       string
+	Association   sql.NullString
+	Example       sql.NullString
+	Transcription sql.NullString
+	Image         sql.NullString
+	ImageUrl      sql.NullString
+	Audio         sql.NullString
+	AudioUrl      sql.NullString
+}
+
+func (q *Queries) EditCard(ctx context.Context, arg EditCardParams) (*Card, error) {
+	row := q.db.QueryRowContext(ctx, editCard,
+		arg.ID,
+		arg.English,
+		arg.Russian,
+		arg.Association,
+		arg.Example,
+		arg.Transcription,
+		arg.Image,
+		arg.ImageUrl,
+		arg.Audio,
+		arg.AudioUrl,
+	)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.DeckID,
+		&i.English,
+		&i.Russian,
+		&i.Association,
+		&i.Example,
+		&i.Transcription,
+		&i.Image,
+		&i.ImageUrl,
+		&i.Audio,
+		&i.AudioUrl,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
+
+const getCard = `-- name: GetCard :one
+SELECT id, deck_id, english, russian, association, example, transcription, image, image_url, audio, audio_url, created_at FROM cards
+WHERE id = $1
+`
+
+func (q *Queries) GetCard(ctx context.Context, id int32) (*Card, error) {
+	row := q.db.QueryRowContext(ctx, getCard, id)
 	var i Card
 	err := row.Scan(
 		&i.ID,

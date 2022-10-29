@@ -7,12 +7,13 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
+	"github.com/4kord/english-flashcards/pkg/services/decks/dto"
 )
 
-func (s *service) EditDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
+func (s *service) EditDeck(ctx context.Context, arg *dto.EditDeckParams) (*maindb.Deck, error) {
 	d, err := s.store.EditDeck(ctx, maindb.EditDeckParams{
-		ID:   deck.ID,
-		Name: deck.Name,
+		ID:   arg.DeckID,
+		Name: arg.NewName,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

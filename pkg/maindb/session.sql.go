@@ -64,6 +64,16 @@ func (q *Queries) DeleteOldestSession(ctx context.Context) error {
 	return err
 }
 
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE session = $1
+`
+
+func (q *Queries) DeleteSession(ctx context.Context, session string) error {
+	_, err := q.db.ExecContext(ctx, deleteSession, session)
+	return err
+}
+
 const getSession = `-- name: GetSession :one
 SELECT id, session, user_id, ip, expires_at, created_at FROM sessions
 WHERE id = $1
@@ -71,6 +81,25 @@ WHERE id = $1
 
 func (q *Queries) GetSession(ctx context.Context, id int32) (*Session, error) {
 	row := q.db.QueryRowContext(ctx, getSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.Session,
+		&i.UserID,
+		&i.Ip,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
+
+const getSessionBySession = `-- name: GetSessionBySession :one
+SELECT id, session, user_id, ip, expires_at, created_at FROM sessions
+WHERE session = $1
+`
+
+func (q *Queries) GetSessionBySession(ctx context.Context, session string) (*Session, error) {
+	row := q.db.QueryRowContext(ctx, getSessionBySession, session)
 	var i Session
 	err := row.Scan(
 		&i.ID,
