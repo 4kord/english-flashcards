@@ -10,7 +10,7 @@ import (
 func (s *service) GetCards(ctx context.Context, deckID int32) ([]*maindb.Card, error) {
 	card, err := s.store.GetCards(ctx, deckID)
 	if err != nil {
-		return nil, errs.E(err, errs.Database, "get_cards_failed")
+		return nil, errs.E(err, errs.Database, errs.Code("get_cards_failed"))
 	}
 
 	return card, nil

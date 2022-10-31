@@ -1,63 +1,34 @@
 package main
 
 import (
-	"database/sql"
-
 	"github.com/4kord/english-flashcards/api"
-	"github.com/4kord/english-flashcards/api/rest"
-	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/4kord/english-flashcards/api/internal/config/setup"
+	v1 "github.com/4kord/english-flashcards/api/v1"
 	"go.uber.org/zap"
 )
 
 func main() {
-	// logger
-	logger, _ := zap.NewDevelopment()
+	app := setup.New()
+
+	defer app.DB.Close()
+
 	defer func() {
-		if err := logger.Sync(); err != nil {
+		if err := app.Logger.Sync(); err != nil {
 			panic(err)
 		}
 	}()
 
-	// parse env
-	env, err := api.NewEnv()
-	if err != nil {
-		logger.Panic("Error reading env variables", zap.Error(err))
-	}
+	api := api.NewServer(&api.Config{
+		Host:   app.Config.Host,
+		Port:   app.Config.Port,
+		Secret: app.Secret,
+		Router: v1.Router,
+		DB:     app.DB,
+		CLD:    app.CLD,
+		Logger: app.Logger,
+	})
 
-	// create db pool
-	db, err := sql.Open(env.MainDBDriver, env.MainDBDSN)
-	if err != nil {
-		logger.Panic("Error opening sql conn", zap.Error(err))
-	}
-	defer db.Close()
+	app.Logger.Info("Server is running", zap.String("host", app.Config.Host))
 
-	// ping db
-	if err = db.Ping(); err != nil {
-		logger.Panic("Error pinging db", zap.Error(err))
-	}
-
-	// create cld instance
-	cld, err := cloudinary.NewFromParams(env.CldCloud, env.CldKey, env.CldSecret)
-	if err != nil {
-		logger.Panic("Error creating cld instance", zap.Error(err))
-	}
-
-	// server config
-	cfg := api.Config{
-		Host:       env.APIHost,
-		Port:       env.APIPort,
-		MainRouter: rest.MainRouter,
-		DB:         db,
-		Cld:        cld,
-		Logger:     logger,
-	}
-
-	logger.Info("Starting server",
-		zap.String("host", env.APIHost),
-		zap.String("port", env.APIPort),
-	)
-
-	logger.Fatal("Server has stopped",
-		zap.Error(api.NewServer(cfg).Run()),
-	)
+	_ = api.ListenAndServe()
 }

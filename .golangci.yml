@@ -11,6 +11,8 @@ linters-settings:
       - opinionated
       - performance
       - style
+    disabled-checks:
+      - importShadow
   govet:
     check-shadowing: true
     # enable:

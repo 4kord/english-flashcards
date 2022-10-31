@@ -18,7 +18,7 @@ func (s *service) RegisterUser(ctx context.Context, email, password string) erro
 	_, err = s.store.CreateUser(ctx, maindb.CreateUserParams{
 		Email:    email,
 		Password: string(crypt),
-		Role:     "user",
+		Admin:    false,
 	})
 
 	if err, ok := err.(*pq.Error); ok {

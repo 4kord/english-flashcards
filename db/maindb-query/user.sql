@@ -6,7 +6,7 @@ WHERE id = $1;
 SELECT * FROM users;
 
 -- name: CreateUser :one
-INSERT INTO users (email, password, role)
+INSERT INTO users (email, password, admin)
 VALUES ($1, $2, $3)
 RETURNING *;
 
