@@ -10,32 +10,42 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (email, password, role)
+INSERT INTO users (email, password, admin)
 VALUES ($1, $2, $3)
-RETURNING id, email, password, role, created_at
+RETURNING id, email, password, admin, created_at
 `
 
 type CreateUserParams struct {
 	Email    string
 	Password string
-	Role     string
+	Admin    bool
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.Password, arg.Role)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.Password, arg.Admin)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
+		&i.Admin,
 		&i.CreatedAt,
 	)
 	return &i, err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
-SELECT id, email, password, role, created_at FROM users
+SELECT id, email, password, admin, created_at FROM users
 WHERE id = $1
 `
 
@@ -46,14 +56,14 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (*User, error) {
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
+		&i.Admin,
 		&i.CreatedAt,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, role, created_at FROM users
+SELECT id, email, password, admin, created_at FROM users
 WHERE email = $1
 `
 
@@ -64,8 +74,41 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
+		&i.Admin,
 		&i.CreatedAt,
 	)
 	return &i, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT id, email, password, admin, created_at FROM users
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]*User, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Password,
+			&i.Admin,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

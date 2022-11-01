@@ -9,10 +9,15 @@ import (
 	"github.com/4kord/english-flashcards/pkg/maindb"
 )
 
-func (s *service) EditDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
+type EditDeckParams struct {
+	DeckID  int32
+	NewName string
+}
+
+func (s *service) EditDeck(ctx context.Context, arg *EditDeckParams) (*maindb.Deck, error) {
 	d, err := s.store.EditDeck(ctx, maindb.EditDeckParams{
-		ID:   deck.ID,
-		Name: deck.Name,
+		ID:   arg.DeckID,
+		Name: arg.NewName,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

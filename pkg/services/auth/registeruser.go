@@ -9,25 +9,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) RegisterUser(ctx context.Context, email, password string) (*maindb.User, error) {
+func (s *service) RegisterUser(ctx context.Context, email, password string) error {
 	crypt, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, errs.E(err, errs.Internal, errs.Code("error_crypt_password"))
+		return errs.E(err, errs.Internal, errs.Code("error_crypt_password"))
 	}
 
-	user, err := s.store.CreateUser(ctx, maindb.CreateUserParams{
+	_, err = s.store.CreateUser(ctx, maindb.CreateUserParams{
 		Email:    email,
 		Password: string(crypt),
-		Role:     "user",
+		Admin:    false,
 	})
 
 	if err, ok := err.(*pq.Error); ok {
-		if err.Constraint == "uc_users_email" {
-			return nil, errs.E(err, errs.Exist, errs.Code("email_taken"))
+		if err.Constraint == "users_email" {
+			return errs.E(err, errs.Exist, errs.Code("email_taken"))
 		}
 
-		return nil, errs.E(err, errs.Database, errs.Code("operation_create_user_failed"))
+		return errs.E(err, errs.Database, errs.Code("operation_create_user_failed"))
 	}
 
-	return user, nil
+	return nil
 }

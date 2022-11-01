@@ -43,6 +43,7 @@ func HTTPErrorResponse(w http.ResponseWriter, log *zap.Logger, err error) {
 			zap.Int("http_statuscode", httpStatusCode),
 			zap.String("Kind", e.Kind.String()),
 			zap.String("Code", string(e.Code)),
+			zap.String("Message", e.Error()),
 		)
 
 		// response error

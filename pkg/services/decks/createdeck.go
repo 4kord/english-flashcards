@@ -7,11 +7,17 @@ import (
 	"github.com/4kord/english-flashcards/pkg/maindb"
 )
 
-func (s *service) CreateDeck(ctx context.Context, deck *maindb.Deck) (*maindb.Deck, error) {
+type CreateDeckParams struct {
+	UserID    int32
+	Name      string
+	IsPremade bool
+}
+
+func (s *service) CreateDeck(ctx context.Context, arg *CreateDeckParams) (*maindb.Deck, error) {
 	d, err := s.store.CreateDeck(ctx, maindb.CreateDeckParams{
-		UserID:    deck.UserID,
-		Name:      deck.Name,
-		IsPremade: deck.IsPremade,
+		UserID:    arg.UserID,
+		Name:      arg.Name,
+		IsPremade: arg.IsPremade,
 	})
 	if err != nil {
 		return nil, errs.E(err, errs.Database, errs.Code("create_deck_failed"))

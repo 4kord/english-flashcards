@@ -108,7 +108,7 @@ func (q *Queries) GetDecks(ctx context.Context, userID int32) ([]*Deck, error) {
 
 const getPremadeDecks = `-- name: GetPremadeDecks :many
 SELECT id, user_id, name, amount, is_premade, created_at FROM decks
-WHERE premade = true
+WHERE is_premade = true
 `
 
 func (q *Queries) GetPremadeDecks(ctx context.Context) ([]*Deck, error) {

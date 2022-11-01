@@ -1,11 +1,11 @@
 version: "2"
 sql:
-- schema: "db/maindb-migration"
-  queries: "db/maindb-query"
+- schema: "pkg/maindb/migrations"
+  queries: "queries"
   engine: "postgresql"
   gen:
     go: 
       package: "maindb"
       out: "pkg/maindb"
-      # emit_interface: true
       emit_result_struct_pointers: true
+      emit_interface: true
