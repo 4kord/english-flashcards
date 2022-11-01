@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-func (s *service) Refresh(ctx context.Context, refreshToken string) error {
-	return nil
+func (s *service) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
+	return "", "", nil
 }

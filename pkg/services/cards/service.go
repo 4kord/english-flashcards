@@ -18,10 +18,10 @@ type Service interface {
 
 type service struct {
 	store *maindb.Store
-	cld   *cld.Cld
+	cld   cld.Cld
 }
 
-func New(store *maindb.Store, c *cld.Cld) Service {
+func New(store *maindb.Store, c cld.Cld) Service {
 	return &service{
 		store: store,
 		cld:   c,

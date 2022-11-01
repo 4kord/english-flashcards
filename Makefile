@@ -1,3 +1,6 @@
+include .env
+export
+
 all: run
 
 run:
@@ -12,4 +15,13 @@ sqlc:
 lint:
 	golangci-lint run ./...
 
-.PHONY: run
+migrateup:
+	migrate -database ${MAINDB_DSN} -path pkg/db/migrations up ${step}
+
+migratedown:
+	migrate -database ${MAINDB_DSN} -path pkg/db/migrations down ${step}
+
+migrateforce:
+	migrate -database ${MAINDB_DSN} -path pkg/db/migrations force ${version}
+
+.PHONY: run build sqlc lint migrateup migratedown

@@ -12,7 +12,7 @@ type Service interface {
 	RegisterUser(ctx context.Context, email, password string) error
 	LoginUser(ctx context.Context, email, password string) (*dto.LoginUserResult, error)
 	LogoutUser(ctx context.Context, session string) error
-	Refresh(ctx context.Context, refreshToken string) error
+	Refresh(ctx context.Context, refreshToken string) (string, string, error)
 }
 
 type service struct {
