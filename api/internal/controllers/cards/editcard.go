@@ -11,7 +11,7 @@ import (
 	"github.com/4kord/english-flashcards/pkg/formdata"
 	"github.com/4kord/english-flashcards/pkg/httputils"
 	"github.com/4kord/english-flashcards/pkg/null"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
+	"github.com/4kord/english-flashcards/pkg/services/cards"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -78,7 +78,7 @@ func (c *Controller) EditCard(w http.ResponseWriter, r *http.Request) {
 		image = request.Audio[0]
 	}
 
-	card, err := c.CardsService.EditCard(r.Context(), &dto.EditCardParams{
+	card, err := c.CardsService.EditCard(r.Context(), &cards.EditCardParams{
 		CardID:        int32(cardIDInt),
 		English:       request.English,
 		Russian:       request.Russian,

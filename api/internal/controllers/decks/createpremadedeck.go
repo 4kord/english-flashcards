@@ -8,7 +8,7 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/httputils"
-	"github.com/4kord/english-flashcards/pkg/services/decks/dto"
+	"github.com/4kord/english-flashcards/pkg/services/decks"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -48,7 +48,7 @@ func (c *Controller) CreatePremadeDeck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deck, err := c.DecksService.CreateDeck(r.Context(), &dto.CreateDeckParams{
+	deck, err := c.DecksService.CreateDeck(r.Context(), &decks.CreateDeckParams{
 		UserID:    int32(userIDInt),
 		Name:      request.Name,
 		IsPremade: true,

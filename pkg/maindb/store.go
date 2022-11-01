@@ -6,19 +6,24 @@ import (
 	"fmt"
 )
 
-type Store struct {
-	*Queries
+type Store interface {
+	Querier
+	ExecTx(ctx context.Context, fn func(Querier) error) error
+}
+
+type store struct {
+	Querier
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &store{
 		db:      db,
-		Queries: New(db),
+		Querier: New(db),
 	}
 }
 
-func (store *Store) ExecTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *store) ExecTx(ctx context.Context, fn func(Querier) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

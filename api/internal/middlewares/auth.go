@@ -17,6 +17,15 @@ type Auth struct {
 	Maker     maker.Maker
 	Log       *zap.Logger
 	AdminOnly bool
+	BeUser    int
+}
+
+func NewAuth(m maker.Maker, log *zap.Logger, adminOnly bool) *Auth {
+	return &Auth{
+		Maker:     m,
+		Log:       log,
+		AdminOnly: adminOnly,
+	}
 }
 
 func (a *Auth) Handler(next http.Handler) http.Handler {
@@ -44,7 +53,7 @@ func (a *Auth) Handler(next http.Handler) http.Handler {
 
 		payload, err := a.Maker.VerifyAccessToken(token)
 		if err != nil {
-			errs.HTTPErrorResponse(w, a.Log, errs.E(err, errs.Unauthenticated, errs.Code("invalid_auth_header")))
+			errs.HTTPErrorResponse(w, a.Log, errs.E(err, errs.Unauthenticated, errs.Code("invalid_token")))
 			return
 		}
 
@@ -61,12 +70,4 @@ func (a *Auth) Handler(next http.Handler) http.Handler {
 	}
 
 	return http.HandlerFunc(fn)
-}
-
-func NewAuth(m maker.Maker, log *zap.Logger, adminOnly bool) *Auth {
-	return &Auth{
-		Maker:     m,
-		Log:       log,
-		AdminOnly: adminOnly,
-	}
 }

@@ -8,14 +8,20 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
-	"github.com/4kord/english-flashcards/pkg/services/auth/dto"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) LoginUser(ctx context.Context, email, password string) (*dto.LoginUserResult, error) {
-	var result = new(dto.LoginUserResult)
+type LoginUserResult struct {
+	User        *maindb.User
+	Session     *maindb.Session
+	AccessToken string
+}
 
-	err := s.store.ExecTx(ctx, func(q *maindb.Queries) error {
+func (s *service) LoginUser(ctx context.Context, email, password string) (*LoginUserResult, error) {
+	var result = new(LoginUserResult)
+
+	err := s.store.ExecTx(ctx, func(q maindb.Querier) error {
 		var err error
 
 		result.User, err = q.GetUserByEmail(ctx, email)
@@ -41,9 +47,32 @@ func (s *service) LoginUser(ctx context.Context, email, password string) (*dto.L
 			return errs.E(err, errs.Internal, errs.Code("error_creating_token"))
 		}
 
-		result.RefreshToken, err = s.maker.CreateRefreshToken(result.User.ID, time.Hour*24*30)
+		refreshToken, err := uuid.NewRandom()
 		if err != nil {
-			return errs.E(err, errs.Internal, errs.Code("error_creating_token"))
+			return errs.E(err, errs.Internal, errs.Code("generate_uuid_failed"))
+		}
+
+		amount, err := q.CountSessions(ctx, result.User.ID)
+		if err != nil {
+			return errs.E(err, errs.Database, "count_esssions_failed")
+		}
+
+		if amount > 4 {
+			err = q.DeleteOldestSession(ctx)
+			if err != nil {
+				return errs.E(err, errs.Database, "delete_oldest_session_failed")
+			}
+		}
+
+		result.Session, err = q.CreateSession(ctx, maindb.CreateSessionParams{
+			RefreshToken: refreshToken.String(),
+			UserAgent:    "",
+			ClientIp:     "",
+			UserID:       result.User.ID,
+			ExpiresAt:    time.Now().UTC().Add(refreshTokenExpiration),
+		})
+		if err != nil {
+			return errs.E(err, errs.Database, "create_session_failed")
 		}
 
 		return nil

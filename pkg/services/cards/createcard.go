@@ -3,14 +3,28 @@ package cards
 import (
 	"context"
 	"database/sql"
+	"mime/multipart"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
+	"github.com/4kord/english-flashcards/pkg/null"
 	"github.com/lib/pq"
 )
 
-func (s *service) CreateCard(ctx context.Context, arg *dto.CreateCardParams) (*maindb.Card, error) {
+type CreateCardParams struct {
+	DeckID        int32
+	English       string
+	Russian       string
+	Association   null.String
+	Example       null.String
+	Transcription null.String
+	Image         *multipart.FileHeader
+	ImageURL      null.String
+	Audio         *multipart.FileHeader
+	AudioURL      null.String
+}
+
+func (s *service) CreateCard(ctx context.Context, arg *CreateCardParams) (*maindb.Card, error) {
 	var imagePublicID, imageURL sql.NullString
 
 	switch {

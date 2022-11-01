@@ -42,12 +42,19 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 		errs.HTTPErrorResponse(w, c.Log, err)
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session",
+		Value:   loginResult.Session.RefreshToken,
+		Path:    "/v1/auth",
+		Expires: loginResult.Session.ExpiresAt,
+	})
+
 	response := LoginUserResponse{
 		UserID:       loginResult.User.ID,
 		Email:        loginResult.User.Email,
 		Admin:        loginResult.User.Admin,
 		AccessToken:  loginResult.AccessToken,
-		RefreshToken: loginResult.RefreshToken,
+		RefreshToken: loginResult.Session.RefreshToken,
 	}
 
 	w.WriteHeader(http.StatusOK)

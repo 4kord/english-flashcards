@@ -3,10 +3,10 @@ package models
 import "time"
 
 type Deck struct {
-	ID        int32
-	UserID    int32
+	ID        int
+	UserID    int
 	Name      string
-	Amount    int32
+	Amount    int
 	IsPremade bool
 	CreatedAt time.Time
 }

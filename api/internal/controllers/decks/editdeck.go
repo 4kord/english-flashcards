@@ -8,7 +8,7 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/httputils"
-	"github.com/4kord/english-flashcards/pkg/services/decks/dto"
+	"github.com/4kord/english-flashcards/pkg/services/decks"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -48,7 +48,7 @@ func (c *Controller) EditDeck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deck, err := c.DecksService.EditDeck(r.Context(), &dto.EditDeckParams{
+	deck, err := c.DecksService.EditDeck(r.Context(), &decks.EditDeckParams{
 		DeckID:  int32(deckIDInt),
 		NewName: request.Name,
 	})

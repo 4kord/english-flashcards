@@ -4,14 +4,28 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"mime/multipart"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
+	"github.com/4kord/english-flashcards/pkg/null"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
-func (s *service) EditCard(ctx context.Context, arg *dto.EditCardParams) (*maindb.Card, error) {
+type EditCardParams struct {
+	CardID        int32
+	English       string
+	Russian       string
+	Association   null.String
+	Example       null.String
+	Transcription null.String
+	Image         *multipart.FileHeader
+	ImageURL      null.String
+	Audio         *multipart.FileHeader
+	AudioURL      null.String
+}
+
+func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Card, error) {
 	card, err := s.store.GetCard(ctx, arg.CardID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

@@ -12,7 +12,7 @@ import (
 )
 
 type Config struct {
-	Store *maindb.Store
+	Store maindb.Store
 	Cld   cld.Cld
 	Maker maker.Maker
 }

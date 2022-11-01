@@ -11,7 +11,7 @@ import (
 	"github.com/4kord/english-flashcards/pkg/formdata"
 	"github.com/4kord/english-flashcards/pkg/httputils"
 	"github.com/4kord/english-flashcards/pkg/null"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
+	"github.com/4kord/english-flashcards/pkg/services/cards"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -78,7 +78,7 @@ func (c *Controller) CreateCard(w http.ResponseWriter, r *http.Request) {
 		image = request.Audio[0]
 	}
 
-	card, err := c.CardsService.CreateCard(r.Context(), &dto.CreateCardParams{
+	card, err := c.CardsService.CreateCard(r.Context(), &cards.CreateCardParams{
 		DeckID:        int32(deckIDInt),
 		English:       request.English,
 		Russian:       request.Russian,

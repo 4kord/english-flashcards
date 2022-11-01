@@ -2,13 +2,13 @@
 SELECT * FROM sessions
 WHERE id = $1;
 
--- name: GetSessionBySession :one
+-- name: GetSessionByToken :one
 SELECT * FROM sessions
-WHERE session = $1;
+WHERE refresh_token = $1;
 
 -- name: CreateSession :one
-INSERT INTO sessions (session, user_id, ip, expires_at)
-VALUES ($1, $2, $3, $4)
+INSERT INTO sessions (refresh_token, user_agent, client_ip, user_id, expires_at)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: CountSessions :one
@@ -17,7 +17,11 @@ WHERE user_id = $1;
 
 -- name: DeleteSession :exec
 DELETE FROM sessions
-WHERE session = $1;
+WHERE id = $1;
+
+-- name: DeleteSessionByToken :exec
+DELETE FROM sessions
+WHERE refresh_token = $1;
 
 -- name: DeleteOldestSession :exec
 DELETE FROM sessions

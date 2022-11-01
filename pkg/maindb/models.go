@@ -45,12 +45,13 @@ type Progress struct {
 }
 
 type Session struct {
-	ID        int32
-	Session   string
-	UserID    int32
-	Ip        string
-	ExpiresAt time.Time
-	CreatedAt time.Time
+	ID           int32
+	RefreshToken string
+	UserAgent    string
+	ClientIp     string
+	UserID       int32
+	ExpiresAt    time.Time
+	CreatedAt    time.Time
 }
 
 type User struct {

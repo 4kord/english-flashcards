@@ -6,16 +6,16 @@ import (
 )
 
 type Card struct {
-	ID            int32
-	DeckID        int32
+	ID            int
+	DeckID        int
 	English       string
 	Russian       string
 	Association   sql.NullString
 	Example       sql.NullString
 	Transcription sql.NullString
 	Image         sql.NullString
-	ImageUrl      sql.NullString
+	ImageURL      sql.NullString
 	Audio         sql.NullString
-	AudioUrl      sql.NullString
+	AudioURL      sql.NullString
 	CreatedAt     time.Time
 }

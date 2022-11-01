@@ -23,31 +23,34 @@ func (q *Queries) CountSessions(ctx context.Context, userID int32) (int64, error
 }
 
 const createSession = `-- name: CreateSession :one
-INSERT INTO sessions (session, user_id, ip, expires_at)
-VALUES ($1, $2, $3, $4)
-RETURNING id, session, user_id, ip, expires_at, created_at
+INSERT INTO sessions (refresh_token, user_agent, client_ip, user_id, expires_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at
 `
 
 type CreateSessionParams struct {
-	Session   string
-	UserID    int32
-	Ip        string
-	ExpiresAt time.Time
+	RefreshToken string
+	UserAgent    string
+	ClientIp     string
+	UserID       int32
+	ExpiresAt    time.Time
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error) {
 	row := q.db.QueryRowContext(ctx, createSession,
-		arg.Session,
+		arg.RefreshToken,
+		arg.UserAgent,
+		arg.ClientIp,
 		arg.UserID,
-		arg.Ip,
 		arg.ExpiresAt,
 	)
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.Session,
+		&i.RefreshToken,
+		&i.UserAgent,
+		&i.ClientIp,
 		&i.UserID,
-		&i.Ip,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
@@ -66,16 +69,26 @@ func (q *Queries) DeleteOldestSession(ctx context.Context) error {
 
 const deleteSession = `-- name: DeleteSession :exec
 DELETE FROM sessions
-WHERE session = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteSession(ctx context.Context, session string) error {
-	_, err := q.db.ExecContext(ctx, deleteSession, session)
+func (q *Queries) DeleteSession(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteSession, id)
+	return err
+}
+
+const deleteSessionByToken = `-- name: DeleteSessionByToken :exec
+DELETE FROM sessions
+WHERE refresh_token = $1
+`
+
+func (q *Queries) DeleteSessionByToken(ctx context.Context, refreshToken string) error {
+	_, err := q.db.ExecContext(ctx, deleteSessionByToken, refreshToken)
 	return err
 }
 
 const getSession = `-- name: GetSession :one
-SELECT id, session, user_id, ip, expires_at, created_at FROM sessions
+SELECT id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at FROM sessions
 WHERE id = $1
 `
 
@@ -84,28 +97,30 @@ func (q *Queries) GetSession(ctx context.Context, id int32) (*Session, error) {
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.Session,
+		&i.RefreshToken,
+		&i.UserAgent,
+		&i.ClientIp,
 		&i.UserID,
-		&i.Ip,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
 	return &i, err
 }
 
-const getSessionBySession = `-- name: GetSessionBySession :one
-SELECT id, session, user_id, ip, expires_at, created_at FROM sessions
-WHERE session = $1
+const getSessionByToken = `-- name: GetSessionByToken :one
+SELECT id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at FROM sessions
+WHERE refresh_token = $1
 `
 
-func (q *Queries) GetSessionBySession(ctx context.Context, session string) (*Session, error) {
-	row := q.db.QueryRowContext(ctx, getSessionBySession, session)
+func (q *Queries) GetSessionByToken(ctx context.Context, refreshToken string) (*Session, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByToken, refreshToken)
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.Session,
+		&i.RefreshToken,
+		&i.UserAgent,
+		&i.ClientIp,
 		&i.UserID,
-		&i.Ip,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 	)

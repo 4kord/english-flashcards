@@ -12,12 +12,14 @@ type Config struct {
 
 type Middlewares struct {
 	AdminAuth *Auth
-	Auth      *Auth
+	AnyAuth   *Auth
+	Require   *Require
 }
 
 func New(cfg *Config) *Middlewares {
 	return &Middlewares{
-		Auth:      NewAuth(cfg.Maker, cfg.Logger, false),
+		AnyAuth:   NewAuth(cfg.Maker, cfg.Logger, false),
 		AdminAuth: NewAuth(cfg.Maker, cfg.Logger, true),
+		Require:   NewRequire(cfg.Logger),
 	}
 }

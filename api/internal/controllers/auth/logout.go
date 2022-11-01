@@ -38,7 +38,7 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 		Name:    "session",
 		Value:   "",
 		MaxAge:  -1,
-		Path:    "/",
+		Path:    "/v1/auth",
 		Expires: time.Now().Add(-100 * time.Hour),
 	})
 

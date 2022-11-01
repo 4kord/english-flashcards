@@ -3,10 +3,10 @@ package models
 import "time"
 
 type Session struct {
-	ID        int32
+	ID        int
 	Session   string
-	UserID    int32
-	Ip        string
+	UserID    int
+	IP        string
 	ExpiresAt time.Time
 	CreatedAt time.Time
 }

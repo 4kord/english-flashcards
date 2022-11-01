@@ -5,10 +5,15 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
-	"github.com/4kord/english-flashcards/pkg/services/decks/dto"
 )
 
-func (s *service) CreateDeck(ctx context.Context, arg *dto.CreateDeckParams) (*maindb.Deck, error) {
+type CreateDeckParams struct {
+	UserID    int32
+	Name      string
+	IsPremade bool
+}
+
+func (s *service) CreateDeck(ctx context.Context, arg *CreateDeckParams) (*maindb.Deck, error) {
 	d, err := s.store.CreateDeck(ctx, maindb.CreateDeckParams{
 		UserID:    arg.UserID,
 		Name:      arg.Name,

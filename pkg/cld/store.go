@@ -9,17 +9,23 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
-type Cld struct {
+type Cld interface {
+	UploadFile(ctx context.Context, fileHeader *multipart.FileHeader) (*uploader.UploadResult, error)
+	UploadFileURL(ctx context.Context, url string) (*uploader.UploadResult, error)
+	DeleteFile(ctx context.Context, publicID, resourceType string) error
+}
+
+type cld struct {
 	*cloudinary.Cloudinary
 }
 
-func New(cld *cloudinary.Cloudinary) *Cld {
-	return &Cld{
-		Cloudinary: cld,
+func New(c *cloudinary.Cloudinary) Cld {
+	return &cld{
+		Cloudinary: c,
 	}
 }
 
-func (cld *Cld) UploadFile(ctx context.Context, fileHeader *multipart.FileHeader) (*uploader.UploadResult, error) {
+func (cld *cld) UploadFile(ctx context.Context, fileHeader *multipart.FileHeader) (*uploader.UploadResult, error) {
 	content, err := fileHeader.Open()
 	if err != nil {
 		return nil, err
@@ -34,7 +40,7 @@ func (cld *Cld) UploadFile(ctx context.Context, fileHeader *multipart.FileHeader
 	return res, nil
 }
 
-func (cld *Cld) UploadFileURL(ctx context.Context, url string) (*uploader.UploadResult, error) {
+func (cld *cld) UploadFileURL(ctx context.Context, url string) (*uploader.UploadResult, error) {
 	resp, err := http.Get(url) //nolint:gosec // url is required to be a function parameter
 	if err != nil {
 		return nil, err
@@ -49,7 +55,7 @@ func (cld *Cld) UploadFileURL(ctx context.Context, url string) (*uploader.Upload
 	return res, nil
 }
 
-func (cld *Cld) DeleteFile(ctx context.Context, publicID, resourceType string) error {
+func (cld *cld) DeleteFile(ctx context.Context, publicID, resourceType string) error {
 	_, err := cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: publicID, ResourceType: resourceType})
 
 	return err

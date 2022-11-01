@@ -7,7 +7,6 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/httputils"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -39,10 +38,7 @@ func (c *Controller) InsertCards(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err = c.CardsService.InsertCards(r.Context(), &dto.InsertCardsParams{
-		DeckID:  int32(deckIDInt),
-		CardIDs: request.CardIDs,
-	})
+	err = c.CardsService.InsertCards(r.Context(), int32(deckIDInt), request.CardIDs)
 
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.Log, err)

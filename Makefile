@@ -16,12 +16,12 @@ lint:
 	golangci-lint run ./...
 
 migrateup:
-	migrate -database ${MAINDB_DSN} -path pkg/db/migrations up ${step}
+	migrate -database ${MAINDB_DSN} -path pkg/maindb/migrations up ${step}
 
 migratedown:
-	migrate -database ${MAINDB_DSN} -path pkg/db/migrations down ${step}
+	migrate -database ${MAINDB_DSN} -path pkg/maindb/migrations down ${step}
 
 migrateforce:
-	migrate -database ${MAINDB_DSN} -path pkg/db/migrations force ${version}
+	migrate -database ${MAINDB_DSN} -path pkg/maindb/migrations force ${version}
 
-.PHONY: run build sqlc lint migrateup migratedown
+.PHONY: run build sqlc lint migrateup migratedown migrateforce

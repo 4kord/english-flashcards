@@ -5,15 +5,14 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/maindb"
-	"github.com/4kord/english-flashcards/pkg/services/cards/dto"
 )
 
-func (s *service) InsertCards(ctx context.Context, arg *dto.InsertCardsParams) error {
-	err := s.store.ExecTx(ctx, func(q *maindb.Queries) error {
-		for _, c := range arg.CardIDs {
+func (s *service) InsertCards(ctx context.Context, deckID int32, cardIDs []int32) error {
+	err := s.store.ExecTx(ctx, func(q maindb.Querier) error {
+		for _, c := range cardIDs {
 			err := q.CopyCard(ctx, maindb.CopyCardParams{
 				ID:     c,
-				DeckID: arg.DeckID,
+				DeckID: deckID,
 			})
 			if err != nil {
 				return err

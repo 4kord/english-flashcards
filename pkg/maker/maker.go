@@ -54,14 +54,14 @@ func NewAccessPayload(sub int32, admin bool, exp time.Duration) *AccessPayload {
 	return &AccessPayload{
 		Sub:   sub,
 		Admin: admin,
-		Exp:   time.Now().Add(exp),
+		Exp:   time.Now().UTC().Add(exp),
 	}
 }
 
 func NewRefreshPayload(sub int32, exp time.Duration) *RefreshPayload {
 	return &RefreshPayload{
 		Sub: sub,
-		Exp: time.Now().Add(exp),
+		Exp: time.Now().UTC().Add(exp),
 	}
 }
 

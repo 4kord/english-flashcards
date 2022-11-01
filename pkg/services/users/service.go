@@ -12,10 +12,10 @@ type Service interface {
 }
 
 type service struct {
-	store *maindb.Store
+	store maindb.Store
 }
 
-func New(store *maindb.Store) Service {
+func New(store maindb.Store) Service {
 	return &service{
 		store: store,
 	}
