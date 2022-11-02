@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (c *Controller) DeleteDeck(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) deleteDeck(w http.ResponseWriter, r *http.Request) {
 	err := httputils.RequireContentType(r, "application/json")
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.Log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))

@@ -25,7 +25,7 @@ type editDeckResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (c *Controller) EditDeck(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) editDeck(w http.ResponseWriter, r *http.Request) {
 	err := httputils.RequireContentType(r, "application/json")
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.Log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
