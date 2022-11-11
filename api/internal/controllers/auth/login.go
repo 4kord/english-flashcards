@@ -43,10 +43,11 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   loginResult.Session.RefreshToken,
-		Path:    "/v1/auth",
-		Expires: loginResult.Session.ExpiresAt,
+		Name:     "session",
+		Value:    loginResult.Session.RefreshToken,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  loginResult.Session.ExpiresAt,
 	})
 
 	response := LoginUserResponse{
