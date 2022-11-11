@@ -9,15 +9,16 @@ import (
 )
 
 const (
-	accessTokenExpiration  = time.Minute * 15
+	accessTokenExpiration  = time.Minute * 2
 	refreshTokenExpiration = time.Hour * 24 * 30
 )
 
 type Service interface {
 	RegisterUser(ctx context.Context, email, password string) error
-	LoginUser(ctx context.Context, email, password string) (*LoginUserResult, error)
+	LoginUser(ctx context.Context, arg *LoginUserParams) (*LoginUserResult, error)
 	LogoutUser(ctx context.Context, session string) error
-	Refresh(ctx context.Context, refreshToken string) (*RefreshResult, error)
+	Refresh(ctx context.Context, arg *RefreshParams) (*RefreshResult, error)
+	User(ctx context.Context, userID int32) (*maindb.User, error)
 }
 
 type service struct {

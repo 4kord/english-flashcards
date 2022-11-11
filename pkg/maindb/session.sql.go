@@ -23,15 +23,14 @@ func (q *Queries) CountSessions(ctx context.Context, userID int32) (int64, error
 }
 
 const createSession = `-- name: CreateSession :one
-INSERT INTO sessions (refresh_token, user_agent, client_ip, user_id, expires_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at
+INSERT INTO sessions (refresh_token, user_agent, user_id, expires_at)
+VALUES ($1, $2, $3, $4)
+RETURNING id, refresh_token, user_agent, user_id, expires_at, created_at
 `
 
 type CreateSessionParams struct {
 	RefreshToken string
 	UserAgent    string
-	ClientIp     string
 	UserID       int32
 	ExpiresAt    time.Time
 }
@@ -40,7 +39,6 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (*
 	row := q.db.QueryRowContext(ctx, createSession,
 		arg.RefreshToken,
 		arg.UserAgent,
-		arg.ClientIp,
 		arg.UserID,
 		arg.ExpiresAt,
 	)
@@ -49,7 +47,6 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (*
 		&i.ID,
 		&i.RefreshToken,
 		&i.UserAgent,
-		&i.ClientIp,
 		&i.UserID,
 		&i.ExpiresAt,
 		&i.CreatedAt,
@@ -88,7 +85,7 @@ func (q *Queries) DeleteSessionByToken(ctx context.Context, refreshToken string)
 }
 
 const getSession = `-- name: GetSession :one
-SELECT id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at FROM sessions
+SELECT id, refresh_token, user_agent, user_id, expires_at, created_at FROM sessions
 WHERE id = $1
 `
 
@@ -99,7 +96,6 @@ func (q *Queries) GetSession(ctx context.Context, id int32) (*Session, error) {
 		&i.ID,
 		&i.RefreshToken,
 		&i.UserAgent,
-		&i.ClientIp,
 		&i.UserID,
 		&i.ExpiresAt,
 		&i.CreatedAt,
@@ -108,7 +104,7 @@ func (q *Queries) GetSession(ctx context.Context, id int32) (*Session, error) {
 }
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT id, refresh_token, user_agent, client_ip, user_id, expires_at, created_at FROM sessions
+SELECT id, refresh_token, user_agent, user_id, expires_at, created_at FROM sessions
 WHERE refresh_token = $1
 `
 
@@ -119,7 +115,6 @@ func (q *Queries) GetSessionByToken(ctx context.Context, refreshToken string) (*
 		&i.ID,
 		&i.RefreshToken,
 		&i.UserAgent,
-		&i.ClientIp,
 		&i.UserID,
 		&i.ExpiresAt,
 		&i.CreatedAt,

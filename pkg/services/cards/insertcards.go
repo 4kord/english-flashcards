@@ -8,18 +8,18 @@ import (
 )
 
 func (s *service) InsertCards(ctx context.Context, deckID int32, cardIDs []int32) error {
-	err := s.store.ExecTx(ctx, func(q maindb.Querier) error {
+	err := s.store.ExecTx(ctx, func(q maindb.Querier) (bool, error) {
 		for _, c := range cardIDs {
 			err := q.CopyCard(ctx, maindb.CopyCardParams{
 				ID:     c,
 				DeckID: deckID,
 			})
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 
-		return nil
+		return true, nil
 	})
 
 	if err != nil {

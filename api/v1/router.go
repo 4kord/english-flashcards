@@ -20,7 +20,9 @@ func Router(c *api.Ctx) chi.Router {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
+		Debug:            true,
 	}).Handler)
 
 	// auth endpoints
@@ -29,6 +31,7 @@ func Router(c *api.Ctx) chi.Router {
 		r.Post("/register", c.Controllers.Auth.Register)
 		r.Post("/logout", c.Controllers.Auth.Logout)
 		r.Get("/refresh", c.Controllers.Auth.Refresh)
+		r.With(c.Middlewares.AnyAuth.Handler).Get("/user", c.Controllers.Auth.User)
 	})
 
 	// users endpoints

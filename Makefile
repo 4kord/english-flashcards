@@ -6,6 +6,9 @@ all: run
 run:
 	go run ./api/cmd/api
 
+web:
+	yarn --cwd ./web/ dev
+
 build:
 	go build ./api/cmd/api
 
@@ -24,4 +27,4 @@ migratedown:
 migrateforce:
 	migrate -database ${MAINDB_DSN} -path pkg/maindb/migrations force ${version}
 
-.PHONY: run build sqlc lint migrateup migratedown migrateforce
+.PHONY: run build sqlc lint migrateup migratedown migrateforce web

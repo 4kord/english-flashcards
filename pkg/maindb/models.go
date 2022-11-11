@@ -48,7 +48,6 @@ type Session struct {
 	ID           int32
 	RefreshToken string
 	UserAgent    string
-	ClientIp     string
 	UserID       int32
 	ExpiresAt    time.Time
 	CreatedAt    time.Time

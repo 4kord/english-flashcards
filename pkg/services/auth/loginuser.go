@@ -12,70 +12,75 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type LoginUserParams struct {
+	Email     string
+	Password  string
+	UserAgent string
+}
+
 type LoginUserResult struct {
 	User        *maindb.User
 	Session     *maindb.Session
 	AccessToken string
 }
 
-func (s *service) LoginUser(ctx context.Context, email, password string) (*LoginUserResult, error) {
+func (s *service) LoginUser(ctx context.Context, arg *LoginUserParams) (*LoginUserResult, error) {
 	var result = new(LoginUserResult)
 
-	err := s.store.ExecTx(ctx, func(q maindb.Querier) error {
+	err := s.store.ExecTx(ctx, func(q maindb.Querier) (bool, error) {
 		var err error
 
-		result.User, err = q.GetUserByEmail(ctx, email)
+		result.User, err = q.GetUserByEmail(ctx, arg.Email)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return errs.E(err, errs.NotExist, errs.Code("email_not_found"))
+				return false, errs.E(err, errs.NotExist, errs.Code("email_not_found"))
 			}
 
-			return errs.E(err, errs.Database, errs.Code("operation_get_user_failed"))
+			return false, errs.E(err, errs.Database, errs.Code("operation_get_user_failed"))
 		}
 
-		err = bcrypt.CompareHashAndPassword([]byte(result.User.Password), []byte(password))
+		err = bcrypt.CompareHashAndPassword([]byte(result.User.Password), []byte(arg.Password))
 		if err != nil {
 			if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-				return errs.E(err, errs.Unauthenticated, errs.Code("incorrect_password"))
+				return false, errs.E(err, errs.Unauthenticated, errs.Code("incorrect_password"))
 			}
 
-			return errs.E(err, errs.Database, errs.Code("compare_hash_and_password_failed"))
+			return false, errs.E(err, errs.Database, errs.Code("compare_hash_and_password_failed"))
 		}
 
 		result.AccessToken, err = s.maker.CreateAccessToken(result.User.ID, result.User.Admin, time.Minute*5)
 		if err != nil {
-			return errs.E(err, errs.Internal, errs.Code("error_creating_token"))
+			return false, errs.E(err, errs.Internal, errs.Code("error_creating_token"))
 		}
 
 		refreshToken, err := uuid.NewRandom()
 		if err != nil {
-			return errs.E(err, errs.Internal, errs.Code("generate_uuid_failed"))
+			return false, errs.E(err, errs.Internal, errs.Code("generate_uuid_failed"))
 		}
 
 		amount, err := q.CountSessions(ctx, result.User.ID)
 		if err != nil {
-			return errs.E(err, errs.Database, "count_esssions_failed")
+			return false, errs.E(err, errs.Database, "count_esssions_failed")
 		}
 
 		if amount > 4 {
 			err = q.DeleteOldestSession(ctx)
 			if err != nil {
-				return errs.E(err, errs.Database, "delete_oldest_session_failed")
+				return false, errs.E(err, errs.Database, "delete_oldest_session_failed")
 			}
 		}
 
 		result.Session, err = q.CreateSession(ctx, maindb.CreateSessionParams{
 			RefreshToken: refreshToken.String(),
-			UserAgent:    "",
-			ClientIp:     "",
+			UserAgent:    arg.UserAgent,
 			UserID:       result.User.ID,
 			ExpiresAt:    time.Now().UTC().Add(refreshTokenExpiration),
 		})
 		if err != nil {
-			return errs.E(err, errs.Database, "create_session_failed")
+			return false, errs.E(err, errs.Database, "create_session_failed")
 		}
 
-		return nil
+		return true, nil
 	})
 
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
-	"github.com/4kord/english-flashcards/pkg/httputils"
 )
 
 type getUsersResponseEntity struct {
@@ -17,12 +16,6 @@ type getUsersResponseEntity struct {
 }
 
 func (c *Controller) GetUsers(w http.ResponseWriter, r *http.Request) {
-	err := httputils.RequireContentType(r, "application/json")
-	if err != nil {
-		errs.HTTPErrorResponse(w, c.Log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
-		return
-	}
-
 	users, err := c.UsersService.GetUsers(r.Context())
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.Log, err)

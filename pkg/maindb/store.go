@@ -8,7 +8,7 @@ import (
 
 type Store interface {
 	Querier
-	ExecTx(ctx context.Context, fn func(Querier) error) error
+	ExecTx(ctx context.Context, fn func(Querier) (bool, error)) error
 }
 
 type store struct {
@@ -23,7 +23,7 @@ func NewStore(db *sql.DB) Store {
 	}
 }
 
-func (store *store) ExecTx(ctx context.Context, fn func(Querier) error) error {
+func (store *store) ExecTx(ctx context.Context, fn func(Querier) (bool, error)) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -31,10 +31,18 @@ func (store *store) ExecTx(ctx context.Context, fn func(Querier) error) error {
 
 	q := New(tx)
 
-	err = fn(q)
+	var commit bool
+
+	commit, err = fn(q)
 	if err != nil {
-		if rbErr := tx.Rollback(); rbErr != nil {
-			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+		if commit {
+			if cmErr := tx.Commit(); cmErr != nil {
+				return fmt.Errorf("tx err: %v, cm err: %v", err, cmErr)
+			}
+		} else {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+			}
 		}
 
 		return err

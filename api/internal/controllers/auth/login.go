@@ -6,6 +6,7 @@ import (
 
 	"github.com/4kord/english-flashcards/pkg/errs"
 	"github.com/4kord/english-flashcards/pkg/httputils"
+	"github.com/4kord/english-flashcards/pkg/services/auth"
 )
 
 type LoginRequest struct {
@@ -37,7 +38,13 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	loginResult, err := c.AuthService.LoginUser(r.Context(), request.Email, request.Password)
+	userAgent := r.UserAgent()
+
+	loginResult, err := c.AuthService.LoginUser(r.Context(), &auth.LoginUserParams{
+		Email:     request.Email,
+		Password:  request.Password,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		errs.HTTPErrorResponse(w, c.Log, err)
 	}

@@ -7,8 +7,8 @@ SELECT * FROM sessions
 WHERE refresh_token = $1;
 
 -- name: CreateSession :one
-INSERT INTO sessions (refresh_token, user_agent, client_ip, user_id, expires_at)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO sessions (refresh_token, user_agent, user_id, expires_at)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: CountSessions :one
