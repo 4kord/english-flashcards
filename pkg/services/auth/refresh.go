@@ -26,22 +26,22 @@ func (s *service) Refresh(ctx context.Context, refreshToken string) (*RefreshRes
 		session, err := q.GetSessionByToken(ctx, refreshToken)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return errs.E(err, errs.NotExist, "session_not_found")
+				return errs.E(err, errs.NotExist, errs.Code("session_not_found"))
 			}
-			return errs.E(err, errs.Database, "get_session_failed")
+			return errs.E(err, errs.Database, errs.Code("get_session_failed"))
 		}
 
 		err = q.DeleteSession(ctx, session.ID)
 		if err != nil {
-			return errs.E(err, errs.Database, "delete_session_failed")
+			return errs.E(err, errs.Database, errs.Code("delete_session_failed"))
 		}
 
 		result.User, err = q.GetUser(ctx, session.UserID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return errs.E(err, errs.NotExist, "user_not_found")
+				return errs.E(err, errs.NotExist, errs.Code("user_not_found"))
 			}
-			return errs.E(err, errs.Database, "get_user_failed")
+			return errs.E(err, errs.Database, errs.Code("get_user_failed"))
 		}
 
 		result.AccessToken, err = s.maker.CreateAccessToken(result.User.ID, result.User.Admin, accessTokenExpiration)
@@ -62,7 +62,7 @@ func (s *service) Refresh(ctx context.Context, refreshToken string) (*RefreshRes
 			ExpiresAt:    time.Now().UTC().Add(refreshTokenExpiration),
 		})
 		if err != nil {
-			return errs.E(err, errs.Database, "create_session_failed")
+			return errs.E(err, errs.Database, errs.Code("create_session_failed"))
 		}
 
 		return nil

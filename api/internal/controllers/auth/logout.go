@@ -35,11 +35,12 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   "",
-		MaxAge:  -1,
-		Path:    "/v1/auth",
-		Expires: time.Now().Add(-100 * time.Hour),
+		Name:     "session",
+		Value:    "",
+		MaxAge:   -1,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Now().Add(-100 * time.Hour),
 	})
 
 	w.WriteHeader(http.StatusOK)

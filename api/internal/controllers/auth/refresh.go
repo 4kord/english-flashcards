@@ -45,10 +45,11 @@ func (c *Controller) Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   result.Session.RefreshToken,
-		Path:    "/v1/auth",
-		Expires: result.Session.ExpiresAt,
+		Name:     "session",
+		Value:    result.Session.RefreshToken,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  result.Session.ExpiresAt,
 	})
 
 	response := RefreshResponse{
