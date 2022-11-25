@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
-	"github.com/4kord/english-flashcards/pkg/httputils"
 	"github.com/4kord/english-flashcards/pkg/null"
 	"github.com/go-chi/chi/v5"
 )
@@ -28,12 +27,6 @@ type getCardsResponseEntity struct {
 }
 
 func (c *Controller) GetCards(w http.ResponseWriter, r *http.Request) {
-	err := httputils.RequireContentType(r, "application/json")
-	if err != nil {
-		errs.HTTPErrorResponse(w, c.Log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
-		return
-	}
-
 	deckID := chi.URLParam(r, "deckID")
 
 	deckIDInt, err := strconv.ParseInt(deckID, 10, 32)

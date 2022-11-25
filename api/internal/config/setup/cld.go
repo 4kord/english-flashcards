@@ -4,8 +4,8 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 )
 
-func setupCLD(cloud, key, secret string) *cloudinary.Cloudinary {
-	cld, err := cloudinary.NewFromParams(cloud, key, secret)
+func setupCLD(cloudinaryURL string) *cloudinary.Cloudinary {
+	cld, err := cloudinary.NewFromURL(cloudinaryURL)
 	if err != nil {
 		panic(err)
 	}

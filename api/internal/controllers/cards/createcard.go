@@ -75,7 +75,7 @@ func (c *Controller) CreateCard(w http.ResponseWriter, r *http.Request) {
 	var audio *multipart.FileHeader
 
 	if len(request.Audio) > 0 {
-		image = request.Audio[0]
+		audio = request.Audio[0]
 	}
 
 	card, err := c.CardsService.CreateCard(r.Context(), &cards.CreateCardParams{

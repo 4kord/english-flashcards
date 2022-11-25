@@ -62,7 +62,7 @@ func Router(c *api.Ctx) chi.Router {
 			r.Post("/insert", c.Controllers.Cards.InsertCards)
 		})
 
-		r.Get("/premade", nil)
+		r.Get("/premade", c.Controllers.Decks.GetPremadeDecks)
 	})
 
 	// cards endpoints
@@ -75,7 +75,7 @@ func Router(c *api.Ctx) chi.Router {
 
 	// google endpoints
 	r.Route("/google", func(r chi.Router) {
-		r.Get("/audio", c.Controllers.Google.FetchAudio)
+		r.Get("/audio/{word}", c.Controllers.Google.FetchAudio)
 	})
 
 	return r

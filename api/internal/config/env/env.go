@@ -6,14 +6,12 @@ import (
 )
 
 type Env struct {
-	APIHost      string `env:"API_HOST"`
-	APIPort      string `env:"API_PORT"`
-	MainDBDriver string `env:"MAINDB_DRIVER"`
-	MainDBDSN    string `env:"MAINDB_DSN"`
-	CldCloud     string `env:"CLD_CLOUD"`
-	CldKey       string `env:"CLD_KEY"`
-	CldSecret    string `env:"CLD_SECRET"`
-	Secret       string `env:"SECRET"`
+	APIHost       string `env:"API_HOST"`
+	APIPort       string `env:"API_PORT"`
+	MainDBDriver  string `env:"MAINDB_DRIVER"`
+	MainDBDSN     string `env:"MAINDB_DSN"`
+	CloudinaryURL string `env:"CLOUDINARY_URL"`
+	Secret        string `env:"SECRET"`
 }
 
 func Parse() (*Env, error) {

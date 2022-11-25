@@ -28,7 +28,7 @@ func main() {
 		Logger: app.Logger,
 	})
 
-	app.Logger.Info("Server is running", zap.String("host", app.Config.Host))
+	app.Logger.Info("Server is running", zap.String("host", app.Config.Host), zap.String("port", app.Config.Port))
 
 	_ = api.ListenAndServe()
 }

@@ -26,7 +26,7 @@ func New() *App {
 
 	app.DB = setupDB(vars.MainDBDriver, vars.MainDBDSN)
 
-	app.CLD = setupCLD(vars.CldCloud, vars.CldKey, vars.CldSecret)
+	app.CLD = setupCLD(vars.CloudinaryURL)
 
 	app.Secret = vars.Secret
 

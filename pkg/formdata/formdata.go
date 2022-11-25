@@ -19,6 +19,8 @@ func Decode(r *http.Request, v any) error {
 		return err
 	}
 
+	fmt.Println(r.MultipartForm.File)
+
 	reflectionTypePtr := reflect.TypeOf(v)
 	reflectionValuePtr := reflect.ValueOf(v)
 

@@ -3,6 +3,7 @@ package cards
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"mime/multipart"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
@@ -34,6 +35,8 @@ func (s *service) CreateCard(ctx context.Context, arg *CreateCardParams) (*maind
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("image_upload_failed"))
 		}
+
+		fmt.Println(res)
 
 		imagePublicID = sql.NullString{String: res.PublicID, Valid: true}
 		imageURL = sql.NullString{String: res.SecureURL, Valid: true}

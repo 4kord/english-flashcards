@@ -17,7 +17,7 @@ export interface IRequest {
   example: string;
   transcription: string;
   image: File;
-  audio: File
+  audio: File;
   imageUrl: string;
   audioUrl: string;
 }
