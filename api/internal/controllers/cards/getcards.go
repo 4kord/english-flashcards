@@ -2,6 +2,7 @@ package cards
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,13 +17,13 @@ type getCardsResponseEntity struct {
 	DeckID        int32       `json:"deck_id"`
 	English       string      `json:"english"`
 	Russian       string      `json:"russian"`
-	Association   null.String `json:"association"`
-	Example       null.String `json:"example"`
-	Transcription null.String `json:"transcription"`
-	Image         null.String `json:"image"`
-	ImageURL      null.String `json:"image_url"`
-	Audio         null.String `json:"audio"`
-	AudioURL      null.String `json:"audio_url"`
+	Association   null.String `json:"association,omitempty"`
+	Example       null.String `json:"example,omitempty"`
+	Transcription null.String `json:"transcription,omitempty"`
+	Image         null.String `json:"image,omitempty"`
+	ImageURL      null.String `json:"image_url,omitempty"`
+	Audio         null.String `json:"audio,omitempty"`
+	AudioURL      null.String `json:"audio_url,omitempty"`
 	CreatedAt     time.Time   `json:"created_at"`
 }
 
@@ -48,18 +49,21 @@ func (c *Controller) GetCards(w http.ResponseWriter, r *http.Request) {
 			DeckID:        cardsResult[i].DeckID,
 			English:       cardsResult[i].English,
 			Russian:       cardsResult[i].Russian,
-			Association:   null.String(cardsResult[i].Association),
-			Example:       null.String(cardsResult[i].Example),
-			Transcription: null.String(cardsResult[i].Transcription),
-			Image:         null.String(cardsResult[i].Image),
-			ImageURL:      null.String(cardsResult[i].ImageUrl),
-			Audio:         null.String(cardsResult[i].Audio),
-			AudioURL:      null.String(cardsResult[i].AudioUrl),
+			Association:   cardsResult[i].Association,
+			Example:       cardsResult[i].Example,
+			Transcription: cardsResult[i].Transcription,
+			Image:         cardsResult[i].Image,
+			ImageURL:      cardsResult[i].ImageUrl,
+			Audio:         cardsResult[i].Audio,
+			AudioURL:      cardsResult[i].AudioUrl,
 			CreatedAt:     cardsResult[i].CreatedAt,
 		}
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+	b, _ := json.Marshal(response)
+	fmt.Println(string(b))
 
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

@@ -34,7 +34,11 @@ export const LoginForm = () => {
     url: "/auth/login",
     onSuccess: (data) => {
       console.log(data);
-      setAuth(data)
+      setAuth({
+				user_id: data.user_id,
+				email: data.email,
+				admin: data.admin,
+			});
       localStorage.setItem("access_token", data.access_token)
       snackbar.enqueueSnackbar("Successfully signed in", {variant: "success"});
       navigate("/", {replace: true})
@@ -50,7 +54,9 @@ export const LoginForm = () => {
 
     console.log(formData);
 
-    await login(formData)
+    await login({
+			data: formData
+		})
 
     setFormData({email: "", password: ""});
   }

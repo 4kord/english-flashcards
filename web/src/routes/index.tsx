@@ -16,17 +16,21 @@ export const MainRoutes: React.FC = () => {
 
 				<Route element={<PersistUser />}>
 
-					<Route path="/">
-						<Route index element={<HomePage />} />
-						<Route path="register" element={<RegisterPage />} />
-						<Route path="login" element={<LoginPage />} />
-					</Route>
+						<Route path="/">
+							<Route index element={<HomePage />} />
+							<Route path="register" element={<RegisterPage />} />
+							<Route path="login" element={<LoginPage />} />
+						</Route>
 
-					<Route path="admin" element={<MenuBar />}>
-						<Route path="overview" element={<h1>Overview</h1>} />
-						<Route path="users" element={<AdminUsersPage />} />
-						<Route path="decks" element={<AdminDecksPage /> } />
-						<Route path="decks/:deckId" element={<AdminCardsPage /> } />
+					<Route element={<MenuBar />}>
+
+						<Route path="admin">
+							<Route path="overview" element={<h1>Overview</h1>} />
+							<Route path="users" element={<AdminUsersPage />} />
+							<Route path="decks" element={<AdminDecksPage /> } />
+							<Route path="decks/:deckId" element={<AdminCardsPage /> } />
+						</Route>
+
 					</Route>
 
 				</Route>

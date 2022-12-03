@@ -6,16 +6,9 @@ import (
 	"time"
 
 	"github.com/4kord/english-flashcards/pkg/errs"
-	"github.com/4kord/english-flashcards/pkg/httputils"
 )
 
 func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
-	err := httputils.RequireContentType(r, "application/json")
-	if err != nil {
-		errs.HTTPErrorResponse(w, c.Log, errs.E(err, errs.InvalidRequest, errs.Code("unsupported_request_type")))
-		return
-	}
-
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {

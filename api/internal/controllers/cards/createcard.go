@@ -13,7 +13,12 @@ import (
 	"github.com/4kord/english-flashcards/pkg/null"
 	"github.com/4kord/english-flashcards/pkg/services/cards"
 	"github.com/go-chi/chi/v5"
+	"github.com/guregu/null/zero"
 )
+
+type test struct {
+	Test1 zero.String `json:"test1,omitempty"`
+}
 
 type createCardRequest struct {
 	English       string                  `form:"english"`
@@ -32,13 +37,13 @@ type createCardResponse struct {
 	DeckID        int32       `json:"deck_id"`
 	English       string      `json:"english"`
 	Russian       string      `json:"russian"`
-	Association   null.String `json:"association"`
-	Example       null.String `json:"example"`
-	Transcription null.String `json:"transcription"`
-	Image         null.String `json:"image"`
-	ImageURL      null.String `json:"image_url"`
-	Audio         null.String `json:"audio"`
-	AudioURL      null.String `json:"audio_url"`
+	Association   null.String `json:"association,omitempty"`
+	Example       null.String `json:"example,omitempty"`
+	Transcription null.String `json:"transcription,omitempty"`
+	Image         null.String `json:"image,omitempty"`
+	ImageURL      null.String `json:"image_url,omitempty"`
+	Audio         null.String `json:"audio,omitempty"`
+	AudioURL      null.String `json:"audio_url,omitempty"`
 	CreatedAt     time.Time   `json:"created_at"`
 }
 
@@ -101,13 +106,13 @@ func (c *Controller) CreateCard(w http.ResponseWriter, r *http.Request) {
 		DeckID:        card.DeckID,
 		English:       card.English,
 		Russian:       card.Russian,
-		Association:   null.String(card.Association),
-		Example:       null.String(card.Example),
-		Transcription: null.String(card.Transcription),
-		Image:         null.String(card.Image),
-		ImageURL:      null.String(card.ImageUrl),
-		Audio:         null.String(card.Audio),
-		AudioURL:      null.String(card.AudioUrl),
+		Association:   card.Association,
+		Example:       card.Example,
+		Transcription: card.Transcription,
+		Image:         card.Image,
+		ImageURL:      card.ImageUrl,
+		Audio:         card.Audio,
+		AudioURL:      card.AudioUrl,
 		CreatedAt:     card.CreatedAt,
 	}
 

@@ -74,7 +74,7 @@ export const Decks: React.FC = () => {
 	});
 
 	useEffect(() => {
-		getDecks();
+		getDecks({});
 	}, []);
 
 	// Add Deck Modal

@@ -1,13 +1,13 @@
 export interface AddCard {
   english: string;
   russian: string;
-  association: string;
-  example: string;
-  transcription: string;
-  image: File | null;
-  audio: File | null;
-  image_url: string;
-  audio_url: string;
+  association?: string;
+  example?: string;
+  transcription?: string;
+  image?: File;
+  audio?: File;
+  image_url?: string;
+  audio_url?: string;
 }
 
 export interface Card {
@@ -15,12 +15,12 @@ export interface Card {
   deck_id: number;
   english: string;
   russian: string;
-  association: string;
-  example: string;
-  transcription: string;
-  image: File | null;
-  audio: File | null;
-  image_url: string;
-  audio_url: string;
-	created_at: string;
+  association?: string;
+  example?: string;
+  transcription?: string;
+  image?: File;
+  audio?: File;
+  image_url?: string;
+  audio_url?: string;
+	created_at?: string;
 }

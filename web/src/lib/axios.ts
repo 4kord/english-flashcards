@@ -36,4 +36,4 @@ api.interceptors.response.use(
 const refreshAccessToken = async () => {
     const res = await apiPublic.get("/auth/refresh");
     localStorage.setItem("access_token", res.data.access_token);
-} 
+}

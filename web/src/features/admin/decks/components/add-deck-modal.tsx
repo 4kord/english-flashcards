@@ -47,7 +47,9 @@ export const AddDeckModel: React.FC<Props> = ({ open, handleClose, setDeckList }
 
     console.log(formData);
 
-    await addDeck(formData)
+    await addDeck({
+			data: formData
+		})
 
     setFormData({name: ""});
   }
@@ -83,7 +85,7 @@ export const AddDeckModel: React.FC<Props> = ({ open, handleClose, setDeckList }
 						/>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} type="submit" autoFocus>
+            <Button onClick={handleClose} type="submit">
               Add
             </Button>
           </DialogActions>

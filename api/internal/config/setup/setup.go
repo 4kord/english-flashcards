@@ -19,10 +19,7 @@ type App struct {
 func New() *App {
 	var app = new(App)
 
-	vars, err := env.Parse()
-	if err != nil {
-		panic(err)
-	}
+	vars, _ := env.Parse()
 
 	app.DB = setupDB(vars.MainDBDriver, vars.MainDBDSN)
 

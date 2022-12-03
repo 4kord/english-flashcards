@@ -115,7 +115,9 @@ export const MenuBar = () => {
   });
 
   const handleLogout = async () => {
-    await logout();
+    await logout({});
+		setAuth(null);
+		localStorage.removeItem("access_token");
   }
 
   return (
@@ -184,32 +186,40 @@ export const MenuBar = () => {
           </IconButton>
         </DrawerHeader>
         <Divider />
+				<List>
+					<ListItem key={"index"} disablePadding>
+            <ListItemButton component={Link} to="/">
+              <ListItemIcon>
+                <LeaderboardIcon />
+              </ListItemIcon>
+              <ListItemText primary={"index"} />
+            </ListItemButton>
+          </ListItem>
+				</List>
+				<Divider />
         <List>
-          <ListItem key={"Overview"} disablePadding>
+          <ListItem key={"admin_overview"} disablePadding>
             <ListItemButton component={Link} to="/admin/overview">
               <ListItemIcon>
                 <LeaderboardIcon />
               </ListItemIcon>
-              <ListItemText primary={"Overview"} />
+              <ListItemText primary={"admin_overview"} />
             </ListItemButton>
           </ListItem>
-        </List>
-        <Divider />
-        <List>
-          <ListItem key={"Users"} disablePadding>
+          <ListItem key={"admin_users"} disablePadding>
             <ListItemButton component={Link} to="/admin/users">
               <ListItemIcon>
                 <GroupIcon />
               </ListItemIcon>
-              <ListItemText primary={"Users"} />
+              <ListItemText primary={"admin_users"} />
             </ListItemButton>
           </ListItem>
-          <ListItem key={"Decks"} disablePadding>
+          <ListItem key={"admin_decks"} disablePadding>
             <ListItemButton component={Link} to="/admin/decks">
               <ListItemIcon>
                 <DnsIcon />
               </ListItemIcon>
-              <ListItemText primary={"Decks"} />
+              <ListItemText primary={"admin_decks"} />
             </ListItemButton>
           </ListItem>
         </List>

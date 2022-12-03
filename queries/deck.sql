@@ -20,3 +20,13 @@ RETURNING *;
 -- name: DeleteDeck :exec
 DELETE FROM decks
 WHERE id = $1;
+
+-- name: DeckAmountUp :exec
+UPDATE decks
+SET amount = amount + 1
+WHERE id = $1;
+
+-- name: DeckAmountDownByCard :exec
+UPDATE decks
+SET amount = amount - 1
+WHERE id = (SELECT deck_id FROM cards WHERE cards.id = $1);

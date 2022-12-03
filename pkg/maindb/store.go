@@ -8,6 +8,7 @@ import (
 
 type Store interface {
 	Querier
+	// bool - commit changes if failed
 	ExecTx(ctx context.Context, fn func(Querier) (bool, error)) error
 }
 

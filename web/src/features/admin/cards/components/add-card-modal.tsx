@@ -24,9 +24,9 @@ export const AddCardModal: React.FC<Props> = ({ open, handleClose, setCardList, 
 		association: "",
 		example: "",
 		transcription: "",
-		image: null,
+		image: undefined,
 		image_url: "",
-		audio: null,
+		audio: undefined,
 		audio_url: ""
 	})
 
@@ -58,7 +58,9 @@ export const AddCardModal: React.FC<Props> = ({ open, handleClose, setCardList, 
 
     console.log(formData);
 
-    await addCard(formData)
+    await addCard({
+			data: formData
+		})
 
     setFormData({
 			english: "",
@@ -66,9 +68,9 @@ export const AddCardModal: React.FC<Props> = ({ open, handleClose, setCardList, 
 			association: "",
 			example: "",
 			transcription: "",
-			image: null,
+			image: undefined,
 			image_url: "",
-			audio: null,
+			audio: undefined,
 			audio_url: ""
 		});
   }
@@ -92,73 +94,74 @@ export const AddCardModal: React.FC<Props> = ({ open, handleClose, setCardList, 
           </IconButton>
         </DialogTitle>
         <Box component="form" onSubmit={handleSubmit}>
-				<DialogContent dividers>
-                <TextField
-                  label="english"
-                  size="medium"
-                  margin="normal"
-                  fullWidth={true}
-                  autoComplete="off"
-                  autoFocus
-									onChange={(e) => setFormData(prev => ({...prev, english: e.target.value}))}
-									value={formData.english}
-                />
-                <TextField
-                  label="russian"
-                  size="medium"
-                  margin="normal"
-                  fullWidth={true}
-                  autoComplete="off"
-									onChange={(e) => setFormData(prev => ({...prev, russian: e.target.value}))}
-									value={formData.russian}
-                />
-                <TextField
-                  label="association"
-                  size="medium"
-                  margin="normal"
-                  fullWidth={true}
-                  autoComplete="off"
-									onChange={(e) => setFormData(prev => ({...prev, association: e.target.value}))}
-									value={formData.association}
-                />
-                <TextField
-                  label="example"
-                  size="medium"
-                  margin="normal"
-                  fullWidth={true}
-                  autoComplete="off"
-									onChange={(e) => setFormData(prev => ({...prev, example: e.target.value}))}
-									value={formData.example}
-                />
-                <TextField
-                  label="transcription"
-                  size="medium"
-                  margin="normal"
-                  fullWidth={true}
-                  autoComplete="off"
-									onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
-									value={formData.transcription}
-                />
-            <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-            <Box>
-              <Typography>Image</Typography>
-              <Box
-								onChange={(e) => {
-									const target = e.target as HTMLInputElement;
-									const file: File = (target.files as FileList)[0];
-									setFormData(prev => ({...prev, image: file}));
-								}}
-								disabled={formData.image_url.length > 0} component="input" type="file" accept="image/* "name="image"
-							/>
-              <Typography>Audio</Typography>
-              <Box
-								onChange={(e) => {
-									const target = e.target as HTMLInputElement;
-									const file: File = (target.files as FileList)[0];
-									setFormData(prev => ({...prev, audio: file}));
-								}}
-								disabled={audioChecked || formData.audio_url.length > 0} component="input" type="file" accept="audio/* "name="audio"/>
-            </Box>
+					<DialogContent dividers>
+						<TextField
+							label="english"
+							size="medium"
+							margin="normal"
+							fullWidth={true}
+							autoComplete="off"
+							autoFocus
+							onChange={(e) => setFormData(prev => ({...prev, english: e.target.value}))}
+							value={formData.english}
+						/>
+						<TextField
+							label="russian"
+							size="medium"
+							margin="normal"
+							fullWidth={true}
+							autoComplete="off"
+							onChange={(e) => setFormData(prev => ({...prev, russian: e.target.value}))}
+							value={formData.russian}
+						/>
+						<TextField
+							label="association"
+							size="medium"
+							margin="normal"
+							fullWidth={true}
+							autoComplete="off"
+							onChange={(e) => setFormData(prev => ({...prev, association: e.target.value}))}
+							value={formData.association}
+						/>
+						<TextField
+							label="example"
+							size="medium"
+							margin="normal"
+							fullWidth={true}
+							autoComplete="off"
+							onChange={(e) => setFormData(prev => ({...prev, example: e.target.value}))}
+							value={formData.example}
+						/>
+						<TextField
+							label="transcription"
+							size="medium"
+							margin="normal"
+							fullWidth={true}
+							autoComplete="off"
+							onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
+							value={formData.transcription}
+						/>
+          	<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+            	<Box>
+              	<Typography>Image</Typography>
+								<Box
+									onChange={(e) => {
+										const target = e.target as HTMLInputElement;
+										const file: File = (target.files as FileList)[0];
+										setFormData(prev => ({...prev, image: file}));
+									}}
+									disabled={formData.image_url != undefined && formData.image_url.length > 0} component="input" type="file" accept="image/* "name="image"
+								/>
+								<Typography>Audio</Typography>
+								<Box
+									onChange={(e) => {
+										const target = e.target as HTMLInputElement;
+										const file: File = (target.files as FileList)[0];
+										setFormData(prev => ({...prev, audio: file}));
+									}}
+									disabled={audioChecked || formData.audio_url != undefined && formData.audio_url.length > 0} component="input" type="file" accept="audio/* "name="audio"
+								/>
+            	</Box>
               <Box>
                 <Typography>Load audio from google</Typography>
                 <Switch checked={audioChecked} onChange={async (_, checked) => {
@@ -201,7 +204,7 @@ export const AddCardModal: React.FC<Props> = ({ open, handleClose, setCardList, 
 						/>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} type="submit" autoFocus>
+            <Button onClick={handleClose} type="submit">
               Add
             </Button>
           </DialogActions>

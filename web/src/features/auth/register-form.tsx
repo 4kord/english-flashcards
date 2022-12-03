@@ -35,7 +35,9 @@ export const RegisterForm = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
-    await register(formData)
+    await register({
+			data: formData
+		})
 
     setFormData({email: "", password: ""});
   }

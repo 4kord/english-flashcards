@@ -7,8 +7,41 @@ import { useCalculateHeight } from '@/hooks/use-calculate-height';
 import { useEffect, useState } from 'react';
 import { Card } from '@/models/card';
 import { AddCardModal } from './components/add-card-modal';
+import { CardPreviewModal } from './components/card-preview-modal';
 
-const CardsBody: React.FC<{cards: Array<Card>, loading: boolean}> = ({cards, loading}) => {
+const CardsBody: React.FC<{cards: Array<Card>, setCards: React.Dispatch<React.SetStateAction<Card[]>>, setPreviewCard: React.Dispatch<React.SetStateAction<Card | undefined>>, setOpenPreview: React.Dispatch<React.SetStateAction<boolean>>, loading: boolean}> = ({cards, setCards, setPreviewCard, setOpenPreview, loading}) => {
+	const snackbar = useSnackbar();
+
+	const [deleteCard] = useApi<void, void>({
+		method: ApiClientMethod.DELETE,
+		url: `/cards/$`,
+		onSuccess: (data) => {
+			console.log(data);
+			snackbar.enqueueSnackbar("Successfully deleted card", { variant: "success" });
+		},
+		onFail: (error) => {
+			console.log(error);
+			snackbar.enqueueSnackbar(error.error.code, { variant: "error" });
+		},
+	});
+
+	const handlePreview = (card: Card) => {
+		setOpenPreview(true);
+		setPreviewCard(card);
+	}
+
+	const handleEdit = () => {
+
+	}
+
+	const handleDelete = async (cardID: number) => {
+		await deleteCard({
+			params: [cardID.toString()]
+		});
+
+		setCards((prev) => prev.filter(card => card.id !== cardID));
+	}
+
 	return (
 		<>
 		<Box sx={{
@@ -27,9 +60,9 @@ const CardsBody: React.FC<{cards: Array<Card>, loading: boolean}> = ({cards, loa
 					}}>
 						<Typography variant="h5">{`${card.english} - ${card.russian} - ${card.association}`}</Typography>
 						<Box>
-							<Button color="success" onClick={() => {}}>Preview</Button>
-							<Button color="info" onClick={() => {}}>Edit</Button>
-							<Button color="error" onClick={() => {}}>Delete</Button>
+							<Button color="success" onClick={() => handlePreview(card)}>Preview</Button>
+							<Button color="info" onClick={handleEdit}>Edit</Button>
+							<Button color="error" onClick={() => handleDelete(card.id)}>Delete</Button>
 						</Box>
 					</Paper>
 				))
@@ -55,31 +88,36 @@ const CardsHeader: React.FC<{handleAddCard: () => void}> = ({handleAddCard}) => 
 
 export const Cards: React.FC<{deckID: number}> = ({ deckID }) => {
 	const snackbar = useSnackbar();
-	const calculatedHeight = useCalculateHeight()
+	const calculatedHeight = useCalculateHeight();
 
 	const [getCards, { data: cards, setData: setCards, loading }] = useApi<void, Array<Card>>({
 		method: ApiClientMethod.GET,
 		url: `/decks/${deckID}/cards`,
 		onSuccess: (data) => {
 			console.log(data);
-			snackbar.enqueueSnackbar("Successfully fetched cards", { variant: "success" })
+			snackbar.enqueueSnackbar("Successfully fetched cards", { variant: "success" });
 		},
 		onFail: (error) => {
 			console.log(error);
-			snackbar.enqueueSnackbar(error.error.code, { variant: "error" })
+			snackbar.enqueueSnackbar(error.error.code, { variant: "error" });
 		}
 	});
 
 	useEffect(() => {
-		getCards();
+		getCards({});
 	}, []);
 
 	// Add Deck Modal
 	const [open, setOpen] = useState(false);
 
+	// Card Prview Modal
+	const [openPreview, setOpenPreview] = useState(false);
+	const [previewCard, setPreviewCard] = useState<Card | undefined>(undefined);
+
 	return (
 		<>
 		<AddCardModal open={open} handleClose={() => setOpen(false)} setCardList={setCards} deckID={deckID} />
+		<CardPreviewModal open={openPreview} handleClose={() => setOpenPreview(false)} card={previewCard} />
     {calculatedHeight &&
       <Box sx={{
         overflowY: "scroll",
@@ -87,7 +125,7 @@ export const Cards: React.FC<{deckID: number}> = ({ deckID }) => {
       }}>
 				<CardsHeader handleAddCard={() => setOpen(true)}/>
         <Divider />
-				<CardsBody cards={cards} loading={loading} />
+				<CardsBody cards={cards} setCards={setCards} setPreviewCard={setPreviewCard} setOpenPreview={setOpenPreview} loading={loading} />
       </Box>
     }
 		</>

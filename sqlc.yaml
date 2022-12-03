@@ -9,3 +9,16 @@ sql:
       out: "pkg/maindb"
       emit_result_struct_pointers: true
       emit_interface: true
+      overrides:
+        - db_type: 'boolean'
+          go_type: "github.com/4kord/english-flashcards/pkg/null.Bool"
+          nullable: true
+        - db_type: 'float'
+          go_type: "github.com/4kord/english-flashcards/pkg/null.Float64"
+          nullable: true
+        - db_type: 'integer'
+          go_type: "github.com/4kord/english-flashcards/pkg/null.Int32"
+          nullable: true
+        - db_type: 'text'
+          go_type: "github.com/4kord/english-flashcards/pkg/null.String"
+          nullable: true

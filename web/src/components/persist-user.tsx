@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { LoadingFull } from "@/components/loading-full";
 
 interface IResponse {
-  userID: number;
+  user_id: number;
 	email: string;
 	admin: boolean;
 }

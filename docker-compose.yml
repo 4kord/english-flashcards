@@ -1,32 +1,94 @@
+version: '3'
+networks:
+  english-flashcards:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
 services:
-  db:
-    build:
-      context: .
-      dockerfile: docker/maindb/Dockerfile
+  # postgres db
+  postgres:
+    image: postgres:15.1
+    networks:
+      - english-flashcards
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=english
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432"
+      - "5432:5432"
+    restart: "on-failure"
+
+  # postgres migrate service
+  postgres-migrate:
+    image: migrate/migrate
+    networks:
+      - english-flashcards
     volumes:
-      - data:/var/lib/postgresql/data
+      - ./pkg/maindb/migrations:/migrations
+    command: ["-path", "/migrations", "-database", "$MAINDB_DSN", "up"]
+    depends_on:
+      - postgres
+    restart: "on-failure"
+
+  # monolith api
   api:
     build:
       context: .
-      dockerfile: docker/api/Dockerfile
-    expose:
-      - "80"
+      dockerfile: api/Dockerfile
+    networks:
+      - english-flashcards
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=4000
+      - MAINDB_DRIVER=$MAINDB_DRIVER
+      - MAINDB_DSN=$MAINDB_DSN
+      - CLOUDINARY_URL=$CLOUDINARY_URL
+    ports:
+      - "4000:4000"
     depends_on:
-      - db
-  nginx:
+      - postgres
+    restart: "on-failure"
+
+  web:
     build:
       context: .
-      dockerfile: docker/nginx/Dockerfile
+      dockerfile: web/Dockerfile
+    networks:
+      - english-flashcards
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - api
-volumes:
- data:
+    restart: "on-failure"
+
+  # prometheus
+  prometheus:
+    image: prom/prometheus:v2.40.5
+    networks:
+      - english-flashcards
+    volumes:
+      - ./extras/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  # grafana
+  grafana:
+    image: grafana/grafana-oss:9.3.1
+    networks:
+      - english-flashcards
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana

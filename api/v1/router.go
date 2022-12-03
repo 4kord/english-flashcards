@@ -6,6 +6,7 @@ import (
 	"github.com/4kord/english-flashcards/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 )
 
@@ -20,10 +21,14 @@ func Router(c *api.Ctx) chi.Router {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "Test"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)
+
+	// prometheus
+	r.Get("/metrics", promhttp.Handler().ServeHTTP)
 
 	// auth endpoints
 	r.Route("/auth", func(r chi.Router) {

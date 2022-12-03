@@ -2,7 +2,6 @@ package cards
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"mime/multipart"
 
@@ -26,7 +25,7 @@ type CreateCardParams struct {
 }
 
 func (s *service) CreateCard(ctx context.Context, arg *CreateCardParams) (*maindb.Card, error) {
-	var imagePublicID, imageURL sql.NullString
+	var imagePublicID, imageURL null.String
 
 	switch {
 	case arg.Image != nil:
@@ -38,20 +37,20 @@ func (s *service) CreateCard(ctx context.Context, arg *CreateCardParams) (*maind
 
 		fmt.Println(res)
 
-		imagePublicID = sql.NullString{String: res.PublicID, Valid: true}
-		imageURL = sql.NullString{String: res.SecureURL, Valid: true}
-	case arg.ImageURL.Valid:
+		imagePublicID = null.String(res.PublicID)
+		imageURL = null.String(res.SecureURL)
+	case arg.ImageURL != "":
 		// if image url exists
-		res, err := s.cld.UploadFileURL(ctx, arg.ImageURL.String)
+		res, err := s.cld.UploadFileURL(ctx, string(arg.ImageURL))
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("image_upload_failed"))
 		}
 
-		imagePublicID = sql.NullString{String: res.PublicID, Valid: true}
-		imageURL = sql.NullString{String: res.SecureURL, Valid: true}
+		imagePublicID = null.String(res.PublicID)
+		imageURL = null.String(res.SecureURL)
 	}
 
-	var audioPublicID, audioURL sql.NullString
+	var audioPublicID, audioURL null.String
 
 	switch {
 	case arg.Audio != nil:
@@ -61,46 +60,62 @@ func (s *service) CreateCard(ctx context.Context, arg *CreateCardParams) (*maind
 			return nil, errs.E(err, errs.IO, errs.Code("audio_upload_failed"))
 		}
 
-		audioPublicID = sql.NullString{String: res.PublicID, Valid: true}
-		audioURL = sql.NullString{String: res.SecureURL, Valid: true}
-	case arg.AudioURL.Valid:
+		audioPublicID = null.String(res.PublicID)
+		audioURL = null.String(res.SecureURL)
+	case arg.AudioURL != "":
 		// if audio url exists
-		res, err := s.cld.UploadFileURL(ctx, arg.AudioURL.String)
+		res, err := s.cld.UploadFileURL(ctx, string(arg.AudioURL))
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("audio_upload_failed"))
 		}
 
-		audioPublicID = sql.NullString{String: res.PublicID, Valid: true}
-		audioURL = sql.NullString{String: res.SecureURL, Valid: true}
+		audioPublicID = null.String(res.PublicID)
+		audioURL = null.String(res.SecureURL)
 	}
 
 	// if nothing is uploaded, value will be null
 
-	createdCard, err := s.store.CreateCard(ctx, maindb.CreateCardParams{
-		DeckID:        arg.DeckID,
-		English:       arg.English,
-		Russian:       arg.Russian,
-		Association:   sql.NullString(arg.Association),
-		Example:       sql.NullString(arg.Example),
-		Transcription: sql.NullString(arg.Transcription),
-		Image:         imagePublicID,
-		ImageUrl:      imageURL,
-		Audio:         audioPublicID,
-		AudioUrl:      audioURL,
+	var createdCard *maindb.Card
+
+	err := s.store.ExecTx(ctx, func(q maindb.Querier) (bool, error) {
+		var err error
+
+		err = q.DeckAmountUp(ctx, arg.DeckID)
+		if err != nil {
+			return false, errs.E(err, errs.Internal, errs.Code("deck_amount_up_failed"))
+		}
+
+		createdCard, err = q.CreateCard(ctx, maindb.CreateCardParams{
+			DeckID:        arg.DeckID,
+			English:       arg.English,
+			Russian:       arg.Russian,
+			Association:   arg.Association,
+			Example:       arg.Example,
+			Transcription: arg.Transcription,
+			Image:         imagePublicID,
+			ImageUrl:      imageURL,
+			Audio:         audioPublicID,
+			AudioUrl:      audioURL,
+		})
+		if err != nil {
+			return false, errs.E(err, errs.Internal, errs.Code("create_card_failed"))
+		}
+
+		return true, nil
 	})
 
 	if err != nil {
 		// Delete image if was created
-		if imagePublicID.Valid {
-			err = s.cld.DeleteFile(ctx, imagePublicID.String, "image")
+		if imagePublicID != "" {
+			err = s.cld.DeleteFile(ctx, string(imagePublicID), "image")
 			if err != nil {
 				return nil, errs.E(err, errs.IO, errs.Code("delete_image_failed"))
 			}
 		}
 
 		// Delete audio if was created
-		if audioPublicID.Valid {
-			err = s.cld.DeleteFile(ctx, audioPublicID.String, "video")
+		if audioPublicID != "" {
+			err = s.cld.DeleteFile(ctx, string(audioPublicID), "video")
 			if err != nil {
 				return nil, errs.E(err, errs.IO, errs.Code("delete_audio_failed"))
 			}

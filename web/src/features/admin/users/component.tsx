@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { ApiClientMethod, useApi } from "@/hooks/use-api";
 import { LoadingSmall } from "@/components/loading-small";
 import { useSnackbar } from "notistack";
-import { LoadingBackdrop } from "@/components/loading-backdrop";
 import { useCalculateHeight } from "@/hooks/use-calculate-height";
 import { User } from "@/models/user";
 import { AddUserModal } from "./components/add-user-modal";
@@ -70,7 +69,7 @@ export const Users: React.FC = () => {
   });
 
   useEffect(() => {
-    getUsers();
+    getUsers({});
   }, [getUsers]);
 
 	// Add User Modal

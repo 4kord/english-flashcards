@@ -35,7 +35,7 @@ func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Ca
 		return nil, errs.E(err, errs.Database, errs.Code("get_card_failed"))
 	}
 
-	var imagePublicID, imageURL sql.NullString
+	var imagePublicID, imageURL null.String
 
 	switch { //nolint:dupl // .
 	case arg.Image != nil:
@@ -47,26 +47,26 @@ func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Ca
 			return nil, errs.E(err, errs.IO, errs.Code("image_upload_failed"))
 		}
 
-		imagePublicID = sql.NullString{String: res.PublicID, Valid: true}
-		imageURL = sql.NullString{String: res.SecureURL, Valid: true}
-	case card.ImageUrl.String == arg.ImageURL.String:
+		imagePublicID = null.String(res.PublicID)
+		imageURL = null.String(res.SecureURL)
+	case card.ImageUrl == arg.ImageURL:
 		// if image url is the same
 		imagePublicID = card.Image
 		imageURL = card.ImageUrl
-	case arg.ImageURL.Valid:
+	case arg.ImageURL != "":
 		// if image url exists
 		var res *uploader.UploadResult
 
-		res, err = s.cld.UploadFileURL(ctx, arg.ImageURL.String)
+		res, err = s.cld.UploadFileURL(ctx, string(arg.ImageURL))
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("image_upload_failed"))
 		}
 
-		imagePublicID = sql.NullString{String: res.PublicID, Valid: true}
-		imageURL = sql.NullString{String: res.SecureURL, Valid: true}
+		imagePublicID = null.String(res.PublicID)
+		imageURL = null.String(res.SecureURL)
 	}
 
-	var audioPublicID, audioURL sql.NullString
+	var audioPublicID, audioURL null.String
 
 	switch { //nolint:dupl // .
 	case arg.Audio != nil:
@@ -78,23 +78,23 @@ func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Ca
 			return nil, errs.E(err, errs.IO, errs.Code("audio_upload_failed"))
 		}
 
-		audioPublicID = sql.NullString{String: res.PublicID, Valid: true}
-		audioURL = sql.NullString{String: res.SecureURL, Valid: true}
-	case card.AudioUrl.String == arg.AudioURL.String:
+		audioPublicID = null.String(res.PublicID)
+		audioURL = null.String(res.SecureURL)
+	case card.AudioUrl == arg.AudioURL:
 		// if audio url is the same
 		audioPublicID = card.Audio
 		audioURL = card.AudioUrl
-	case arg.AudioURL.Valid:
+	case arg.AudioURL != "":
 		// if audio url exists
 		var res *uploader.UploadResult
 
-		res, err = s.cld.UploadFileURL(ctx, arg.AudioURL.String)
+		res, err = s.cld.UploadFileURL(ctx, string(arg.AudioURL))
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("audio_upload_failed"))
 		}
 
-		audioPublicID = sql.NullString{String: res.PublicID, Valid: true}
-		audioURL = sql.NullString{String: res.SecureURL, Valid: true}
+		audioPublicID = null.String(res.PublicID)
+		audioURL = null.String(res.SecureURL)
 	}
 
 	// if nothing is uploaded - value will be null (by default url is the current url in db)
@@ -102,9 +102,9 @@ func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Ca
 		ID:            arg.CardID,
 		English:       arg.English,
 		Russian:       arg.Russian,
-		Association:   sql.NullString(arg.Association),
-		Example:       sql.NullString(arg.Example),
-		Transcription: sql.NullString(arg.Transcription),
+		Association:   arg.Association,
+		Example:       arg.Example,
+		Transcription: arg.Transcription,
 		Image:         imagePublicID,
 		ImageUrl:      imageURL,
 		Audio:         audioPublicID,
@@ -115,15 +115,15 @@ func (s *service) EditCard(ctx context.Context, arg *EditCardParams) (*maindb.Ca
 	}
 
 	// if everything is successful, remove previous files
-	if card.Image.Valid {
-		err = s.cld.DeleteFile(ctx, card.Image.String, "image")
+	if card.Image != "" {
+		err = s.cld.DeleteFile(ctx, string(card.Image), "image")
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("delete_image_failed"))
 		}
 	}
 
-	if card.Audio.Valid {
-		err = s.cld.DeleteFile(ctx, card.Audio.String, "video")
+	if card.Audio != "" {
+		err = s.cld.DeleteFile(ctx, string(card.Audio), "video")
 		if err != nil {
 			return nil, errs.E(err, errs.IO, errs.Code("delete_audio_failed"))
 		}

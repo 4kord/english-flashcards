@@ -12,7 +12,7 @@ VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: CountSessions :one
-SELECT COUNT(*) FROM sessions
+SELECT COUNT(1) FROM sessions
 WHERE user_id = $1;
 
 -- name: DeleteSession :exec
